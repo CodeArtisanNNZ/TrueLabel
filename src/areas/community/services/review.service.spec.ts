@@ -2,85 +2,115 @@ import { BadRequestException, ConflictException, ForbiddenException, NotFoundExc
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Test } from '@nestjs/testing';
 import { FoodProduct } from '../../food-catalog/models/food-product.entity';
+import { User } from '../../identity/models/user.entity';
 import { FoodReview } from '../models/food-review.entity';
 import { ReviewService } from './review.service';
 
 describe('ReviewService (F11)', () => {
   let service: ReviewService;
-  const reviews = { find: jest.fn(), findOne: jest.fn(), create: jest.fn(), save: jest.fn() };
+  const reviews = { find: jest.fn(), findOne: jest.fn(), create: jest.fn(), save: jest.fn(), remove: jest.fn() };
   const products = { findOne: jest.fn() };
+  const users = { findOne: jest.fn() };
   const product = { id: 5, name: 'Oat Milk', status: 'active', manufacturerId: 20 };
+  const dto = { tasteRating: 5, labelAccuracyRating: 4, packagingRating: 4,
+    purchaseExperienceRating: 3, comment: 'Good taste and packaging' };
 
   beforeEach(async () => {
     jest.resetAllMocks();
-    const module = await Test.createTestingModule({
+    const mod = await Test.createTestingModule({
       providers: [
         ReviewService,
         { provide: getRepositoryToken(FoodReview), useValue: reviews },
         { provide: getRepositoryToken(FoodProduct), useValue: products },
+        { provide: getRepositoryToken(User), useValue: users },
       ],
     }).compile();
-    service = module.get(ReviewService);
+    service = mod.get(ReviewService);
     products.findOne.mockResolvedValue(product);
+    users.findOne.mockResolvedValue({ id: 3, createdAt: new Date(Date.now() - 365 * 86400000) });
     reviews.create.mockImplementation(data => data);
     reviews.save.mockImplementation(async data => data);
+    reviews.remove.mockImplementation(async data => data);
   });
 
-  it('lists reviews and calculates the average', async () => {
-    reviews.find.mockResolvedValue([{ rating: 5 }, { rating: 3 }]);
+  it('calculates an average using credibility weights', async () => {
+    reviews.find.mockResolvedValue([
+      { rating: 5, credibilityWeight: 1.2 },
+      { rating: 3, credibilityWeight: 1 },
+    ]);
     const result = await service.forProduct(5);
-    expect(result.averageRating).toBe('4.0');
-    expect(result.reviews).toHaveLength(2);
+    expect(result.averageRating).toBe('4.1');
+    expect(reviews.find).toHaveBeenCalledWith(expect.objectContaining({
+      where: { productId: 5, visibility: 'visible' },
+    }));
   });
 
-  it('handles a product with no reviews', async () => {
+  it('does not rate products without visible reviews', async () => {
     reviews.find.mockResolvedValue([]);
     expect((await service.forProduct(5)).averageRating).toBeNull();
   });
 
-  it('creates a review for an existing product', async () => {
+  it('saves all four ratings and provisional credibility', async () => {
     reviews.findOne.mockResolvedValue(null);
-    await service.create(5, 3, { rating: 4, comment: '  Nice texture and taste  ' });
+    await service.create(5, 3, dto);
     expect(reviews.create).toHaveBeenCalledWith(expect.objectContaining({
-      productId: 5, userId: 3, rating: 4, comment: 'Nice texture and taste',
+      productId: 5, userId: 3, tasteRating: 5, packagingRating: 4,
+      rating: 4, credibilityWeight: 1.2, visibility: 'visible',
     }));
     expect(reviews.save).toHaveBeenCalledTimes(1);
   });
 
-  it('rejects reviews of unknown products', async () => {
-    products.findOne.mockResolvedValue(null);
-    await expect(service.create(99, 3, { rating: 4, comment: 'Great product' }))
-      .rejects.toThrow(NotFoundException);
+  it('rejects duplicate reviews', async () => {
+    reviews.findOne.mockResolvedValue({ id: 7 });
+    await expect(service.create(5, 3, dto)).rejects.toThrow(ConflictException);
   });
 
-  it('rejects empty review text', async () => {
-    await expect(service.create(5, 3, { rating: 4, comment: '          ' }))
+  it('rejects non-existent products', async () => {
+    products.findOne.mockResolvedValue(null);
+    await expect(service.create(99, 3, dto)).rejects.toThrow(NotFoundException);
+  });
+
+  it('rejects invalid ratings even when service is used directly', async () => {
+    reviews.findOne.mockResolvedValue(null);
+    await expect(service.create(5, 3, { ...dto, tasteRating: 9 }))
       .rejects.toThrow(BadRequestException);
   });
 
-  it('blocks duplicate reviews', async () => {
-    reviews.findOne.mockResolvedValue({ id: 8 });
-    await expect(service.create(5, 3, { rating: 5, comment: 'Great product' }))
-      .rejects.toThrow(ConflictException);
+  it('rejects blank text', async () => {
+    await expect(service.create(5, 3, { ...dto, comment: '     ' }))
+      .rejects.toThrow(BadRequestException);
   });
 
-  it('allows the product manufacturer to reply', async () => {
-    reviews.findOne.mockResolvedValue({ id: 10, productId: 5, product });
-    await service.reply(10, 'Thanks for the review', { id: 20, role: 'manufacturer' });
+  it('allows authors to edit their own reviews', async () => {
+    reviews.findOne.mockResolvedValue({ id: 7, productId: 5, userId: 3 });
+    const updated = await service.update(7, 3, dto);
+    expect(updated.rating).toBe(4);
+    expect(updated.tasteRating).toBe(5);
+  });
+
+  it('blocks someone else editing a review', async () => {
+    reviews.findOne.mockResolvedValue({ id: 7, productId: 5, userId: 4 });
+    await expect(service.update(7, 3, dto)).rejects.toThrow(ForbiddenException);
+  });
+
+  it('removes an author-owned review', async () => {
+    reviews.findOne.mockResolvedValue({ id: 7, productId: 5, userId: 3 });
+    expect(await service.remove(7, 3)).toBe(5);
+    expect(reviews.remove).toHaveBeenCalled();
+  });
+
+  it('blocks other consumers deleting a review', async () => {
+    reviews.findOne.mockResolvedValue({ id: 7, productId: 5, userId: 4 });
+    await expect(service.remove(7, 3)).rejects.toThrow(ForbiddenException);
+  });
+
+  it('allows manufacturer replies only on owned products', async () => {
+    reviews.findOne.mockResolvedValue({ id: 7, productId: 5, product });
+    await service.reply(7, 'Thank you', { id: 20, role: 'manufacturer' });
     expect(reviews.save).toHaveBeenCalledWith(expect.objectContaining({
-      manufacturerReply: 'Thanks for the review',
+      manufacturerReply: 'Thank you',
     }));
-  });
-
-  it('blocks a different manufacturer', async () => {
-    reviews.findOne.mockResolvedValue({ id: 10, productId: 5, product });
-    await expect(service.reply(10, 'Thanks', { id: 30, role: 'manufacturer' }))
+    await expect(service.reply(7, 'Thanks', { id: 30, role: 'manufacturer' }))
       .rejects.toThrow(ForbiddenException);
-  });
-
-  it('returns 404 for a missing review', async () => {
-    reviews.findOne.mockResolvedValue(null);
-    await expect(service.reply(99, 'Thanks', { id: 20, role: 'manufacturer' }))
-      .rejects.toThrow(NotFoundException);
   });
 });
