@@ -1,13 +1,30 @@
 import { Type } from 'class-transformer';
 import { IsInt, IsOptional, IsString, Max, MaxLength, Min, MinLength } from 'class-validator';
 
-// F11: Basic input validation, shared by the HTML form and controller.
 export class CreateReviewDto {
   @Type(() => Number)
   @IsInt()
   @Min(1)
   @Max(5)
-  rating: number;
+  tasteRating: number;
+
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  @Max(5)
+  labelAccuracyRating: number;
+
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  @Max(5)
+  packagingRating: number;
+
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  @Max(5)
+  purchaseExperienceRating: number;
 
   @IsOptional()
   @IsString()

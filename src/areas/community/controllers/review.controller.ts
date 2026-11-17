@@ -13,29 +13,33 @@ import { Roles } from '../../../common/decorators/roles.decorator';
 export class ReviewController {
   constructor(private readonly reviews: ReviewService) {}
 
-  // F11: Anyone can read reviews.
   @Get('products/:productId/reviews')
   @Render('areas/community/views/reviews')
   async view(@Param('productId', ParseIntPipe) id: number, @Req() req: Request) {
     const { product, reviews, averageRating } = await this.reviews.forProduct(id);
     const user = req.session?.user || null;
-    const alreadyReviewed = user?.role === 'consumer' && reviews.some((r) => r.userId === user.id);
+    const ownReview = user?.role === 'consumer'
+      ? reviews.find((review) => review.userId === user.id) : null;
     const canReply = user?.role === 'admin' ||
       (user?.role === 'manufacturer' && user.id === product.manufacturerId);
     return {
       title: 'Reviews for ' + product.name + ' — TrueLabel',
       product, reviews: reviews.map((review) => ({
         id: review.id, rating: review.rating, title: review.title,
+        tasteRating: review.tasteRating, labelAccuracyRating: review.labelAccuracyRating,
+        packagingRating: review.packagingRating,
+        purchaseExperienceRating: review.purchaseExperienceRating,
+        credibilityWeight: review.credibilityWeight,
         comment: review.comment, manufacturerReply: review.manufacturerReply,
         authorName: review.author?.name || 'Consumer',
         postedOn: review.createdAt?.toLocaleDateString('en-GB') || '',
-        canReply,
+        canReply, isMine: user?.role === 'consumer' && user.id === review.userId,
       })),
-      averageRating, user, alreadyReviewed, canReview: user?.role === 'consumer' && !alreadyReviewed,
+      averageRating, user, alreadyReviewed: Boolean(ownReview),
+      canReview: user?.role === 'consumer' && !ownReview,
     };
   }
 
-  // F11: Signed-in consumer submits a review.
   @Post('products/:productId/reviews')
   @UseGuards(AuthenticatedGuard, RolesGuard)
   @Roles('consumer')
@@ -48,7 +52,29 @@ export class ReviewController {
     return res.redirect('/community/products/' + id + '/reviews');
   }
 
-  // F11: Manufacturer or admin response.
+  @Post('reviews/:reviewId/edit')
+  @UseGuards(AuthenticatedGuard, RolesGuard)
+  @Roles('consumer')
+  @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
+  async update(
+    @Param('reviewId', ParseIntPipe) id: number,
+    @Body() dto: CreateReviewDto, @Req() req: Request, @Res() res: Response,
+  ) {
+    const review = await this.reviews.update(id, req.session.user.id, dto);
+    return res.redirect('/community/products/' + review.productId + '/reviews');
+  }
+
+  @Post('reviews/:reviewId/delete')
+  @UseGuards(AuthenticatedGuard, RolesGuard)
+  @Roles('consumer')
+  async remove(
+    @Param('reviewId', ParseIntPipe) id: number,
+    @Req() req: Request, @Res() res: Response,
+  ) {
+    const productId = await this.reviews.remove(id, req.session.user.id);
+    return res.redirect('/community/products/' + productId + '/reviews');
+  }
+
   @Post('reviews/:reviewId/reply')
   @UseGuards(AuthenticatedGuard, RolesGuard)
   @Roles('manufacturer', 'admin')

@@ -5,7 +5,6 @@ import {
 import { FoodProduct } from '../../food-catalog/models/food-product.entity';
 import { User } from '../../identity/models/user.entity';
 
-// F11: One review per user per product.
 @Entity('food_reviews')
 @Unique(['productId', 'userId'])
 export class FoodReview {
@@ -26,8 +25,28 @@ export class FoodReview {
   @JoinColumn({ name: 'userId' })
   author: User;
 
+  // F11: Overall rating is the rounded mean of the four ratings.
   @Column({ type: 'int' })
   rating: number;
+
+  @Column({ type: 'int', default: 3 })
+  tasteRating: number;
+
+  @Column({ type: 'int', default: 3 })
+  labelAccuracyRating: number;
+
+  @Column({ type: 'int', default: 3 })
+  packagingRating: number;
+
+  @Column({ type: 'int', default: 3 })
+  purchaseExperienceRating: number;
+
+  @Column({ type: 'float', default: 1 })
+  credibilityWeight: number;
+
+  // F12 will manage hidden/visible transitions and audit logging later.
+  @Column({ length: 20, default: 'visible' })
+  visibility: 'visible' | 'hidden';
 
   @Column({ length: 120, default: '' })
   title: string;
