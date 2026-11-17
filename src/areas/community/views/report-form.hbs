@@ -1,24 +1,34 @@
 <div class="max-w-2xl mx-auto space-y-5">
   <a href="/catalog/product/{{product.id}}" class="text-sm text-slate-600 hover:underline">&larr; Back to product</a>
-  <form method="POST" action="/community/products/{{product.id}}/report" class="bg-white border border-slate-200 rounded-lg p-6 space-y-5">
+  <form method="POST" action="/community/products/{{product.id}}/report" enctype="multipart/form-data" class="bg-white border border-slate-200 rounded-lg p-6 space-y-5">
     <div>
-      <h1 class="text-2xl font-black text-slate-900">Report a problem</h1>
+      <h1 class="text-2xl font-black">Report a problem</h1>
       <p class="text-sm text-slate-600 mt-1">{{product.brand}} — {{product.name}}</p>
-      <p class="text-xs text-slate-500 mt-2">Reports are private and sent to the inspection queue. They are not published as reviews.</p>
+      <p class="text-xs text-slate-500 mt-2">Private reports are sent for review and are not published as product ratings.</p>
     </div>
     <label class="block text-sm font-semibold">Problem type
       <select name="category" required class="mt-1 w-full border border-slate-300 rounded p-2">
-        <option value="quality">Poor quality / damaged food</option>
-        <option value="expired">Expired product</option>
-        <option value="label">Incorrect or misleading label</option>
-        <option value="allergen">Allergen or ingredient concern</option>
-        <option value="other">Other</option>
+        <option value="counterfeit">Suspected counterfeit</option>
+        <option value="spoiled">Spoiled food</option>
+        <option value="contaminated">Suspected contamination</option>
+        <option value="damaged">Damaged packaging</option>
+        <option value="mislabelled">Incorrect or misleading label</option>
       </select>
     </label>
-    <label class="block text-sm font-semibold">What happened?
-      <textarea name="description" rows="5" minlength="20" maxlength="2000" required class="mt-1 w-full border border-slate-300 rounded p-2" placeholder="Describe the problem. Include batch number or date if known."></textarea>
+    <label class="block text-sm font-semibold">Batch number (if available)
+      <input name="batchCode" maxlength="80" class="block mt-1 w-full border border-slate-300 rounded p-2" placeholder="e.g. BX-104">
     </label>
-    <p class="text-xs text-slate-500">A complaint is not proof of a safety violation. Seek medical assistance for urgent health problems.</p>
-    <button type="submit" class="bg-rose-700 text-white font-semibold text-sm rounded px-4 py-2">Submit complaint</button>
+    <label class="block text-sm font-semibold">Purchase location
+      <input name="purchasePlace" required minlength="2" maxlength="200" class="block mt-1 w-full border border-slate-300 rounded p-2" placeholder="Store / area">
+    </label>
+    <label class="block text-sm font-semibold">What happened?
+      <textarea name="description" rows="5" minlength="20" maxlength="2000" required class="mt-1 w-full border border-slate-300 rounded p-2" placeholder="Describe the product issue in detail."></textarea>
+    </label>
+    <label class="block text-sm font-semibold">Photo evidence (optional)
+      <input name="photo" type="file" accept="image/jpeg,image/png,image/webp" class="block mt-1 w-full text-sm">
+      <span class="text-xs text-slate-500">JPEG, PNG or WebP, up to 3 MB. Images are kept in private storage.</span>
+    </label>
+    <p class="text-xs text-slate-500">A complaint is not proof of a safety violation. Seek medical attention for urgent health concerns.</p>
+    <button type="submit" class="bg-rose-700 text-white font-semibold rounded px-4 py-2">Submit complaint</button>
   </form>
 </div>

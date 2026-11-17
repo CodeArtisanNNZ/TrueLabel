@@ -1,9 +1,12 @@
 import {
   Controller, Get, Post, Body, Param, ParseIntPipe, Req, Res,
   Render, UseGuards, UsePipes, ValidationPipe,
+  UploadedFile, UseInterceptors,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { Request, Response } from 'express';
 import { ReportService } from '../services/report.service';
+import { EvidenceUpload } from '../services/report-evidence.service';
 import { CreateReportDto, UpdateReportStatusDto } from '../models/dto/create-report.dto';
 import { AuthenticatedGuard } from '../../../common/guards/authenticated.guard';
 import { RolesGuard } from '../../../common/guards/roles.guard';
@@ -13,7 +16,6 @@ import { Roles } from '../../../common/decorators/roles.decorator';
 export class ReportController {
   constructor(private readonly reports: ReportService) {}
 
-  // F13: Product complaint form, only for signed-in consumers.
   @Get('products/:productId/report')
   @UseGuards(AuthenticatedGuard, RolesGuard)
   @Roles('consumer')
@@ -23,20 +25,21 @@ export class ReportController {
     return { title: 'Report a product — TrueLabel', product, user: req.session.user };
   }
 
-  // F13: New private report.
   @Post('products/:productId/report')
   @UseGuards(AuthenticatedGuard, RolesGuard)
   @Roles('consumer')
+  @UseInterceptors(FileInterceptor('photo', { limits: { fileSize: 3 * 1024 * 1024 } }))
   @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
   async create(
     @Param('productId', ParseIntPipe) id: number,
-    @Body() dto: CreateReportDto, @Req() req: Request, @Res() res: Response,
+    @Body() dto: CreateReportDto,
+    @Req() req: Request, @Res() res: Response,
+    @UploadedFile() photo?: EvidenceUpload,
   ) {
-    await this.reports.create(id, req.session.user.id, dto);
+    await this.reports.create(id, req.session.user.id, dto, photo);
     return res.redirect('/community/reports/mine');
   }
 
-  // F13: Consumer sees their own reports only.
   @Get('reports/mine')
   @UseGuards(AuthenticatedGuard, RolesGuard)
   @Roles('consumer')
@@ -48,7 +51,6 @@ export class ReportController {
     };
   }
 
-  // F13: Inspector/admin queue.
   @Get('reports/queue')
   @UseGuards(AuthenticatedGuard, RolesGuard)
   @Roles('inspector', 'admin')
@@ -60,7 +62,16 @@ export class ReportController {
     };
   }
 
-  // F13: Restricted status update.
+  @Get('reports/:reportId/evidence')
+  @UseGuards(AuthenticatedGuard)
+  async evidence(
+    @Param('reportId', ParseIntPipe) id: number,
+    @Req() req: Request, @Res() res: Response,
+  ) {
+    const url = await this.reports.evidenceUrl(id, req.session.user);
+    return res.redirect(url);
+  }
+
   @Post('reports/:reportId/status')
   @UseGuards(AuthenticatedGuard, RolesGuard)
   @Roles('inspector', 'admin')

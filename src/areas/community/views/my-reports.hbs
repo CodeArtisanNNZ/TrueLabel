@@ -1,15 +1,19 @@
 <div class="max-w-4xl mx-auto space-y-5">
   <a href="/catalog" class="text-sm text-slate-600 hover:underline">&larr; Catalog</a>
-  <h1 class="text-2xl font-black text-slate-900">My reports</h1>
-  <p class="text-sm text-slate-500">Only you and authorized staff can view these complaints.</p>
+  <h1 class="text-2xl font-black">My reports</h1>
+  <p class="text-sm text-slate-500">Only you and authorized staff can access these complaints.</p>
   {{#each reports}}
     <article class="bg-white border border-slate-200 rounded-lg p-5 space-y-2">
-      <div class="flex justify-between gap-3">
+      <div class="flex flex-wrap justify-between gap-2">
         <h2 class="font-bold">{{this.product.name}}</h2>
-        <span class="text-xs font-bold uppercase text-slate-600">{{this.status}}</span>
+        <span class="text-xs uppercase font-bold">{{this.status}}</span>
       </div>
-      <p class="text-xs font-semibold uppercase text-slate-500">{{this.category}}</p>
-      <p class="text-sm whitespace-pre-wrap text-slate-700">{{this.description}}</p>
+      <p class="text-xs font-semibold text-slate-600">Reference: {{this.referenceNumber}}</p>
+      <p class="text-xs text-slate-500">{{this.category}} · Batch: {{#if this.batchCode}}{{this.batchCode}}{{else}}Not provided{{/if}} · {{this.purchasePlace}}</p>
+      <p class="text-sm whitespace-pre-wrap">{{this.description}}</p>
+      {{#if this.evidence.length}}
+        <a class="text-sm underline font-semibold" href="/community/reports/{{this.id}}/evidence">View my photo evidence</a>
+      {{/if}}
     </article>
   {{else}}
     <div class="bg-white border border-slate-200 rounded p-6 text-sm text-slate-500">You haven't submitted any complaints.</div>

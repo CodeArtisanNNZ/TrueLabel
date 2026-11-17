@@ -1,9 +1,18 @@
-import { IsIn, IsString, MinLength, MaxLength } from 'class-validator';
+import { IsIn, IsOptional, IsString, MinLength, MaxLength } from 'class-validator';
 
-// F13: A report describes a problem; it does not establish a safety violation.
 export class CreateReportDto {
-  @IsIn(['quality', 'expired', 'label', 'allergen', 'other'])
-  category: 'quality' | 'expired' | 'label' | 'allergen' | 'other';
+  @IsIn(['counterfeit', 'spoiled', 'contaminated', 'damaged', 'mislabelled'])
+  category: 'counterfeit' | 'spoiled' | 'contaminated' | 'damaged' | 'mislabelled';
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(80)
+  batchCode?: string;
+
+  @IsString()
+  @MinLength(2)
+  @MaxLength(200)
+  purchasePlace: string;
 
   @IsString()
   @MinLength(20)
