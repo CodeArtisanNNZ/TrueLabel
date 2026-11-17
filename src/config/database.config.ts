@@ -7,6 +7,7 @@ import { NutritionFact } from '../areas/food-catalog/models/nutrition-fact.entit
 import { PreferenceProfile } from '../areas/personal-food/models/preference-profile.entity';
 import { FoodReview } from '../areas/community/models/food-review.entity';
 import { FoodReport } from '../areas/community/models/food-report.entity';
+import { ReportEvidence } from '../areas/community/models/report-evidence.entity';
 
 dotenv.config();
 
@@ -18,6 +19,7 @@ const ALL_ENTITIES = [
   PreferenceProfile,
   FoodReview,
   FoodReport,
+  ReportEvidence,
 ];
 
 export const getDatabaseConfig = (): TypeOrmModuleOptions => {

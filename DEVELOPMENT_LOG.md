@@ -216,3 +216,13 @@
 - Included a non-secret .env.example; real .env credentials were not committed.
 - PostgreSQL automatic schema sync is now opt-in (DB_SYNC=true); use a reviewed migration before applying new entities to the shared database.
 - Tests/build have not been run in this connector environment; verify with npm test, npm run build and npm run test:e2e in an isolated development environment.
+
+---
+
+### 2026-11-17 (Asia/Dhaka) | Sprint 2 requirements alignment — F11/F13
+- Used the CSE470 TrueLabel SRS requirements for R10/F11 and R11/F13 as the target.
+- Added four review rating dimensions; credibility-weight formula; author edit/delete; recalculated visible review aggregates.
+- Added food complaint categories, batch code and purchase location, reference number, same-product/batch grouping and optional private image evidence code.
+- Added domain tests and a follow-up PostgreSQL migration draft; no live database operations were executed.
+- Pending: running Jest/build/E2E against a development DB; configuring the private Supabase Storage bucket and server-side credentials; reviewing CSRF protections; team review and PR merge.
+- Verified purchase/batch evidence integration remains pending on the F07/purchase verification dependencies; unverified user claims are never awarded bonus points.
