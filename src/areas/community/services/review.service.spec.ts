@@ -113,4 +113,47 @@ describe('ReviewService (F11)', () => {
     await expect(service.reply(7, 'Thanks', { id: 30, role: 'manufacturer' }))
       .rejects.toThrow(ForbiddenException);
   });
+
+  it('computes four-dimension weighted averages and product summary for detail view', async () => {
+    // Arrange
+    reviews.find.mockResolvedValue([
+      {
+        id: 1,
+        productId: 5,
+        userId: 3,
+        rating: 5,
+        tasteRating: 5,
+        labelAccuracyRating: 5,
+        packagingRating: 4,
+        purchaseExperienceRating: 4,
+        credibilityWeight: 1.2,
+        comment: 'Very clean oat drink',
+        author: { name: 'Sharah' },
+        createdAt: new Date('2026-11-16'),
+      },
+      {
+        id: 2,
+        productId: 5,
+        userId: 4,
+        rating: 3,
+        tasteRating: 3,
+        labelAccuracyRating: 4,
+        packagingRating: 3,
+        purchaseExperienceRating: 3,
+        credibilityWeight: 1.0,
+        comment: 'Average taste',
+        author: { name: 'Tariq' },
+        createdAt: new Date('2026-11-17'),
+      },
+    ]);
+
+    // Act
+    const summary = await service.getProductSummary(5);
+
+    // Assert
+    expect(summary.reviewCount).toBe(2);
+    expect(summary.averageRating).toBe('4.1');
+    expect(summary.dimensionAverages).toHaveLength(4);
+    expect(summary.recentReviews).toHaveLength(2);
+  });
 });

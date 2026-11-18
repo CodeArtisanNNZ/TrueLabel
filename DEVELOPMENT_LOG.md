@@ -748,3 +748,31 @@
 - Pending: running Jest/build/E2E against a development DB; configuring the private Supabase Storage bucket and server-side credentials; reviewing CSRF protections; team review and PR merge.
 - Verified purchase/batch evidence integration remains pending on the F07/purchase verification dependencies; unverified user claims are never awarded bonus points.
 
+---
+
+### Entry 034 | 2026-11-18 19:43:00 +06:00 | PR #4 Merge Resolution & Full Project-Rules Compliance Audit for F11 & F13
+- **Action**: Resolved all merge conflicts between `upstream/main` and PR #4 (`F11-F13-community-nusaiba`), fixed runtime integration gaps, enforced strict MVC boundaries, redesigned all four community views following the mandatory `frontend-design` skill, and integrated F11/F13 visibly across navigation, product dossiers, dashboards, and seed data.
+- **Architectural & Compliance Fixes**:
+  1. **Merge & Configuration Resolution**:
+     - Merged `src/app.module.ts`, `src/config/database.config.ts`, `src/shared/views/partials/navbar.hbs`, and `DEVELOPMENT_LOG.md` with zero conflict markers.
+     - Set PostgreSQL `synchronize: process.env.DB_SYNC !== 'false'` so new community tables (`food_reviews`, `food_reports`, `report_evidence`) auto-sync by default while remaining disableable via `DB_SYNC=false`.
+  2. **CSRF Hardening (`CsrfGuard` & Community Templates)**:
+     - Added `_csrf` hidden inputs to all POST forms in `reviews.hbs`, `report-form.hbs`, and `report-queue.hbs`.
+     - Added query-token fallback (`request.query._csrf`) in `CsrfGuard` with unit tests so `multipart/form-data` complaint photo uploads pass CSRF validation before `FileInterceptor` executes.
+  3. **Strict MVC & Area Encapsulation (`PROJECT_RULES.md` §1 & §2)**:
+     - Exported `ReviewService` and `ReportService` from `CommunityModule`.
+     - Moved review view-model shaping and four-dimension credibility-weighted aggregation out of `ReviewController` into `ReviewService` (`forProduct`, `getProductSummary`, `getForManufacturer`).
+     - Added filtered docket telemetry (`getQueueWithStats`), batch cluster detection, and reference-number confirmation redirects (`?submitted=TL-...`) in `ReportService` / `ReportController`.
+     - Added private local filesystem fallback (`storage/private/report-evidence/`, gitignored, served only via RBAC-protected `/community/reports/:reportId/evidence`) in `ReportEvidenceService` when `SUPABASE_SERVICE_ROLE_KEY` is not set locally.
+  4. **Mandatory `frontend-design` Skill UI & Full Discoverability (`PROJECT_RULES.md` §1.4)**:
+     - Redesigned `reviews.hbs` (asymmetric credibility seal, 4-dimension visual breakdown bars, transparent weighting formula, structured selectors, hairline review ledger, non-lab disclaimer).
+     - Redesigned `report-form.hbs` (urgent medical-help callout, structured problem classification radio cards, batch traceability, private photo upload).
+     - Redesigned `my-reports.hbs` (reference-number confirmation banner, private complaint tracker ledger) and `report-queue.hbs` (high-density Inspector regulatory docket table, 4-metric telemetry bar, status/category filters, batch cluster indicators).
+     - Embedded live F11 rating summary and review excerpts directly on `src/areas/food-catalog/views/detail.hbs`.
+     - Integrated F11/F13 links and widgets across `navbar.hbs` and all four dashboards (`consumer.hbs`, `manufacturer.hbs`, `inspector.hbs`, `admin.hbs`).
+  5. **Authentic Seed Data & Demo Switcher FK Fix (`src/config/seed.service.ts`, `src/areas/identity/`)**:
+     - Added idempotent seeding for F11 reviews (including an official manufacturer reply) and F13 complaints (including a 2-report linked batch cluster on `BATCH-FRT-2026-09`).
+     - Replaced synthetic `id: 99` in `AuthController.demoSwitchRole` with `AuthService.findOrCreateDemoUser(role)` so demo sessions always resolve to a real persisted `users` row (preventing PostgreSQL FK violations on `food_reports` and `food_reviews`), and added reporter existence validation in `ReportService.create`.
+- **Verification**:
+  - `npm run build`: Compiled cleanly (exit code 0).
+  - `npm test`: **24 passed test suites, 220 unit tests passing (100% green)**.

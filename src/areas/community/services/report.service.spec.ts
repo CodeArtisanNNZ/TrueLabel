@@ -12,7 +12,13 @@ describe('ReportService (F13)', () => {
   const reports = { find: jest.fn(), findOne: jest.fn(), create: jest.fn(), save: jest.fn() };
   const products = { findOne: jest.fn() };
   const evidence = { create: jest.fn(), save: jest.fn() };
-  const storage = { validatePhoto: jest.fn(), upload: jest.fn(), remove: jest.fn(), signedUrl: jest.fn() };
+  const storage = {
+    validatePhoto: jest.fn(),
+    upload: jest.fn(),
+    remove: jest.fn(),
+    signedUrl: jest.fn(),
+    resolveEvidence: jest.fn(),
+  };
   const dto = { category: 'spoiled' as const, batchCode: 'BA-001',
     purchasePlace: 'Campus Store', description: 'The food had a bad smell and unusual colour' };
 
@@ -97,5 +103,43 @@ describe('ReportService (F13)', () => {
     expect(reports.save).toHaveBeenCalledWith(expect.objectContaining({ status: 'investigating' }));
     await expect(service.updateStatus(7, 'resolved', 'consumer'))
       .rejects.toThrow(ForbiddenException);
+  });
+
+  it('filters complaint queue by status and category while preserving batch cluster telemetry', async () => {
+    // Arrange
+    reports.find.mockResolvedValue([
+      { id: 1, productId: 5, batchCode: 'B-99', status: 'pending', category: 'spoiled' },
+      { id: 2, productId: 5, batchCode: 'b-99', status: 'investigating', category: 'damaged' },
+      { id: 3, productId: 6, batchCode: 'C-10', status: 'resolved', category: 'mislabelled' },
+    ]);
+
+    // Act
+    const result = await service.getQueueWithStats({ status: 'pending', category: 'spoiled' });
+
+    // Assert
+    expect(result.stats.total).toBe(3);
+    expect(result.stats.pending).toBe(1);
+    expect(result.stats.batchClusters).toBe(1);
+    expect(result.reports).toHaveLength(1);
+    expect(result.reports[0].linkedCount).toBe(2);
+    expect(result.reports[0].hasLinkedBatchCluster).toBe(true);
+  });
+
+  it('resolves private evidence access for authorized owner or inspector', async () => {
+    // Arrange
+    reports.findOne.mockResolvedValue({
+      id: 7,
+      userId: 3,
+      evidence: [{ filePath: 'local:test.png', mimeType: 'image/png' }],
+    });
+    storage.resolveEvidence.mockResolvedValue({ mode: 'local', absolutePath: '/tmp/test.png' });
+
+    // Act & Assert
+    await expect(service.getEvidenceAccess(7, { id: 9, role: 'consumer' })).rejects.toThrow(
+      ForbiddenException,
+    );
+    const result = await service.getEvidenceAccess(7, { id: 2, role: 'inspector' });
+    expect(result.mimeType).toBe('image/png');
+    expect(result.access).toEqual({ mode: 'local', absolutePath: '/tmp/test.png' });
   });
 });

@@ -1,5 +1,5 @@
 import {
-  Controller, Get, Post, Body, Param, ParseIntPipe, Req, Res,
+  Controller, Get, Post, Body, Param, Query, ParseIntPipe, Req, Res,
   Render, UseGuards, UsePipes, ValidationPipe,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
@@ -9,34 +9,34 @@ import { AuthenticatedGuard } from '../../../common/guards/authenticated.guard';
 import { RolesGuard } from '../../../common/guards/roles.guard';
 import { Roles } from '../../../common/decorators/roles.decorator';
 
+// Feature F11: Thin MVC Controller for Credibility-Weighted Food Reviews
 @Controller('community')
 export class ReviewController {
   constructor(private readonly reviews: ReviewService) {}
 
   @Get('products/:productId/reviews')
   @Render('areas/community/views/reviews')
-  async view(@Param('productId', ParseIntPipe) id: number, @Req() req: Request) {
-    const { product, reviews, averageRating } = await this.reviews.forProduct(id);
+  async view(
+    @Param('productId', ParseIntPipe) id: number,
+    @Req() req: Request,
+    @Query('success') success?: string,
+    @Query('error') error?: string,
+  ) {
     const user = req.session?.user || null;
-    const ownReview = user?.role === 'consumer'
-      ? reviews.find((review) => review.userId === user.id) : null;
-    const canReply = user?.role === 'admin' ||
-      (user?.role === 'manufacturer' && user.id === product.manufacturerId);
+    const data = await this.reviews.forProduct(id, user);
     return {
-      title: 'Reviews for ' + product.name + ' — TrueLabel',
-      product, reviews: reviews.map((review) => ({
-        id: review.id, rating: review.rating, title: review.title,
-        tasteRating: review.tasteRating, labelAccuracyRating: review.labelAccuracyRating,
-        packagingRating: review.packagingRating,
-        purchaseExperienceRating: review.purchaseExperienceRating,
-        credibilityWeight: review.credibilityWeight,
-        comment: review.comment, manufacturerReply: review.manufacturerReply,
-        authorName: review.author?.name || 'Consumer',
-        postedOn: review.createdAt?.toLocaleDateString('en-GB') || '',
-        canReply, isMine: user?.role === 'consumer' && user.id === review.userId,
-      })),
-      averageRating, user, alreadyReviewed: Boolean(ownReview),
-      canReview: user?.role === 'consumer' && !ownReview,
+      title: `Consumer reviews for ${data.product.name} — TrueLabel`,
+      activeNav: 'catalog',
+      product: data.product,
+      reviews: data.viewReviews,
+      reviewCount: data.reviewCount,
+      averageRating: data.averageRating,
+      dimensionAverages: data.dimensionAverages,
+      alreadyReviewed: data.alreadyReviewed,
+      canReview: data.canReview,
+      user,
+      success,
+      error,
     };
   }
 
@@ -46,10 +46,20 @@ export class ReviewController {
   @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
   async create(
     @Param('productId', ParseIntPipe) id: number,
-    @Body() dto: CreateReviewDto, @Req() req: Request, @Res() res: Response,
+    @Body() dto: CreateReviewDto,
+    @Req() req: Request,
+    @Res() res: Response,
   ) {
-    await this.reviews.create(id, req.session.user.id, dto);
-    return res.redirect('/community/products/' + id + '/reviews');
+    try {
+      await this.reviews.create(id, req.session.user.id, dto);
+      return res.redirect(
+        `/community/products/${id}/reviews?success=${encodeURIComponent('Your credibility-weighted review has been published.')}`,
+      );
+    } catch (err: any) {
+      return res.redirect(
+        `/community/products/${id}/reviews?error=${encodeURIComponent(err.message || 'Unable to save review.')}`,
+      );
+    }
   }
 
   @Post('reviews/:reviewId/edit')
@@ -58,10 +68,14 @@ export class ReviewController {
   @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
   async update(
     @Param('reviewId', ParseIntPipe) id: number,
-    @Body() dto: CreateReviewDto, @Req() req: Request, @Res() res: Response,
+    @Body() dto: CreateReviewDto,
+    @Req() req: Request,
+    @Res() res: Response,
   ) {
     const review = await this.reviews.update(id, req.session.user.id, dto);
-    return res.redirect('/community/products/' + review.productId + '/reviews');
+    return res.redirect(
+      `/community/products/${review.productId}/reviews?success=${encodeURIComponent('Your review was updated and product ratings were recalculated.')}`,
+    );
   }
 
   @Post('reviews/:reviewId/delete')
@@ -69,10 +83,13 @@ export class ReviewController {
   @Roles('consumer')
   async remove(
     @Param('reviewId', ParseIntPipe) id: number,
-    @Req() req: Request, @Res() res: Response,
+    @Req() req: Request,
+    @Res() res: Response,
   ) {
     const productId = await this.reviews.remove(id, req.session.user.id);
-    return res.redirect('/community/products/' + productId + '/reviews');
+    return res.redirect(
+      `/community/products/${productId}/reviews?success=${encodeURIComponent('Your review has been removed.')}`,
+    );
   }
 
   @Post('reviews/:reviewId/reply')
@@ -81,9 +98,13 @@ export class ReviewController {
   @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
   async reply(
     @Param('reviewId', ParseIntPipe) id: number,
-    @Body() dto: ReplyToReviewDto, @Req() req: Request, @Res() res: Response,
+    @Body() dto: ReplyToReviewDto,
+    @Req() req: Request,
+    @Res() res: Response,
   ) {
     const review = await this.reviews.reply(id, dto.reply, req.session.user);
-    return res.redirect('/community/products/' + review.productId + '/reviews');
+    return res.redirect(
+      `/community/products/${review.productId}/reviews?success=${encodeURIComponent('Manufacturer response saved.')}`,
+    );
   }
 }

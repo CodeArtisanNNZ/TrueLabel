@@ -24,6 +24,9 @@ out/
 *.sqlite3
 *.db
 
+# Private local upload fallback storage (F13)
+storage/
+
 # Test coverage
 coverage/
 .nyc_output/
