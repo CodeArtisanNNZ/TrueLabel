@@ -2,12 +2,18 @@ import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { join } from 'path';
 import * as fs from 'fs';
-import * as session from 'express-session';
-import * as hbs from 'hbs';
+import * as crypto from 'crypto';
+import session = require('express-session');
+import hbs = require('hbs');
 import { AppModule } from './app.module';
+import { AuthExceptionFilter } from './common/filters/auth-exception.filter';
+import { CsrfGuard } from './common/guards/csrf.guard';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
+
+  // Trust reverse proxy (Railway, Render, Fly.io, Cloudflare) for HTTPS secure cookies
+  app.set('trust proxy', 1);
 
   // Serve static assets (CSS, images, client scripts)
   app.useStaticAssets(join(__dirname, '..', 'public'));
@@ -49,6 +55,11 @@ async function bootstrap() {
   hbs.registerHelper('and', (a, b) => a && b);
   hbs.registerHelper('gte', (a, b) => a >= b);
   hbs.registerHelper('lte', (a, b) => a <= b);
+  hbs.registerHelper('gt', (a, b) => a > b);
+  hbs.registerHelper('lt', (a, b) => a < b);
+  hbs.registerHelper('add', (a, b) => Number(a) + Number(b));
+  hbs.registerHelper('subtract', (a, b) => Number(a) - Number(b));
+  hbs.registerHelper('urlEncode', (val: any) => encodeURIComponent(String(val || '')));
   hbs.registerHelper('includes', (arr: any, val: any) => {
     if (!arr) return false;
     if (Array.isArray(arr)) {
@@ -60,20 +71,46 @@ async function bootstrap() {
     return false;
   });
 
+  // Session & Security Hardening
+  const isProduction = process.env.NODE_ENV === 'production';
+  const sessionSecret = process.env.SESSION_SECRET;
+  if (!sessionSecret && isProduction) {
+    throw new Error('FATAL: SESSION_SECRET environment variable is required in production.');
+  }
+
   // Session Middleware
   app.use(
     session({
-      secret: process.env.SESSION_SECRET || 'truelabel_super_secret_session_key_2026',
+      secret: sessionSecret || 'truelabel_super_secret_session_key_2026',
       resave: false,
       saveUninitialized: false,
-      cookie: { maxAge: 24 * 60 * 60 * 1000 },
+      proxy: true, // Required for secure cookies behind reverse proxies (Railway, Render, etc.)
+      cookie: {
+        maxAge: 24 * 60 * 60 * 1000,
+        httpOnly: true,
+        sameSite: 'lax',
+        secure: isProduction,
+      },
     }),
   );
 
-  // Root redirect to catalog
-  app.getHttpAdapter().get('/', (req: any, res: any) => {
-    res.redirect('/catalog');
+  // CSRF token generation and template exposure middleware
+  app.use((req: any, res: any, next: any) => {
+    if (req.session) {
+      if (!req.session.csrfToken) {
+        req.session.csrfToken = crypto.randomBytes(32).toString('hex');
+      }
+      res.locals.csrfToken = req.session.csrfToken;
+    }
+    res.locals.enableDemoSwitcher =
+      process.env.NODE_ENV !== 'production' || process.env.ENABLE_DEMO_SWITCHER === 'true';
+    next();
   });
+
+  // Global Guards & Exception Filters
+  app.useGlobalGuards(new CsrfGuard());
+  app.useGlobalFilters(new AuthExceptionFilter());
+
 
   const port = process.env.PORT || 3000;
   await app.listen(port);
@@ -83,7 +120,7 @@ async function bootstrap() {
   } else {
     console.log('[Database] Warning: No DATABASE_URL found. Running with local fallback.');
   }
-  console.log(`TrueLabel platform is running live at: http://localhost:${port}/catalog`);
+  console.log(`TrueLabel platform is running live at: http://localhost:${port}/`);
 }
 
 bootstrap();

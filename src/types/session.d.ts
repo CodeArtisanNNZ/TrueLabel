@@ -3,6 +3,7 @@ import { UserRole } from '../areas/identity/models/user.entity';
 
 declare module 'express-session' {
   interface SessionData {
+    csrfToken?: string;
     user?: {
       id: number;
       name: string;

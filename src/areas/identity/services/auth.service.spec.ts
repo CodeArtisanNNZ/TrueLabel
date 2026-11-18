@@ -60,6 +60,32 @@ describe('AuthService (Unit Tests)', () => {
       expect(userRepository.save).toHaveBeenCalledTimes(1);
     });
 
+    it('should sanitize privileged role attempts to consumer as defense-in-depth', async () => {
+      // Arrange
+      const dto = {
+        name: 'Attacker Admin',
+        email: 'attacker@example.com',
+        password: 'password123',
+        role: 'admin' as any,
+      };
+
+      (userRepository.findOne as jest.Mock).mockResolvedValue(null);
+      (userRepository.create as jest.Mock).mockImplementation((userData) => ({
+        id: 99,
+        ...userData,
+      }));
+      (userRepository.save as jest.Mock).mockImplementation(async (u) => u);
+
+      // Act
+      const result = await service.register(dto);
+
+      // Assert
+      expect(userRepository.create).toHaveBeenCalledWith(
+        expect.objectContaining({ role: 'consumer' }),
+      );
+      expect(result.role).toBe('consumer');
+    });
+
     it('should throw ConflictException if email is already taken', async () => {
       // Arrange
       const dto = {

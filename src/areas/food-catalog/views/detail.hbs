@@ -2,35 +2,35 @@
 
   <!-- Breadcrumb & Actions Bar -->
   <div class="flex items-center justify-between">
-    <a href="/catalog" class="text-xs font-bold text-slate-500 hover:text-slate-900 flex items-center gap-1">
-      &larr; Back to Catalog Discovery
+    <a href="/catalog" class="text-xs font-semibold text-slate-500 hover:text-slate-900 transition-colors">
+      Back to food catalog
     </a>
-    <div class="flex items-center gap-2">
+    <div class="flex items-center gap-3">
       {{#if isOwner}}
-        <a href="/catalog/manage/{{product.id}}/edit" class="text-xs font-bold px-3 py-1.5 rounded border border-slate-300 text-slate-700 hover:bg-slate-100">
-          Edit Food Details
+        <a href="/catalog/manage/{{product.id}}/edit" class="text-xs font-semibold px-3 py-1.5 rounded-md border border-slate-300 text-slate-700 hover:bg-slate-50 transition-colors">
+          Edit food details
         </a>
       {{/if}}
       <span class="text-xs font-mono text-slate-400">Barcode: {{product.barcode}}</span>
     </div>
   </div>
 
-  <!-- Main Product Header -->
-  <div class="bg-white border border-slate-200 rounded-lg p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-    <div>
-      <div class="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-400">
-        <span>{{product.category}}</span>
-        <span>·</span>
-        <span class="text-slate-600">{{product.brand}}</span>
+  <!-- Main Product Header: Editorial Dossier Hero -->
+  <div class="bg-white border border-slate-200 rounded-xl p-6 sm:p-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+    <div class="space-y-2">
+      <div class="text-xs font-semibold text-slate-500">
+        <span class="text-slate-900 font-bold">{{product.brand}}</span> &bull; <span>{{product.category}}</span>
       </div>
-      <h1 class="text-3xl font-black text-slate-900 tracking-tight mt-1">{{product.name}}</h1>
-      <p class="text-sm text-slate-600 mt-2 max-w-2xl">{{product.description}}</p>
+      <h1 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">{{product.name}}</h1>
+      {{#if product.description}}
+        <p class="text-sm text-slate-600 max-w-2xl leading-relaxed">{{product.description}}</p>
+      {{/if}}
       
       <!-- Dietary Tags -->
       {{#if product.dietaryTags.length}}
-        <div class="flex flex-wrap gap-2 mt-4">
+        <div class="flex flex-wrap gap-1.5 pt-1">
           {{#each product.dietaryTags}}
-            <span class="text-xs font-bold uppercase tracking-wide px-2.5 py-1 bg-slate-100 text-slate-800 rounded">
+            <span class="text-xs font-semibold px-2.5 py-1 bg-slate-100 text-slate-700 rounded-md">
               {{this}}
             </span>
           {{/each}}
@@ -39,35 +39,38 @@
     </div>
 
     <!-- Explainable Food Quality Score Seal -->
-    <div class="flex flex-col items-center justify-center p-4 rounded-lg bg-slate-50 border border-slate-200 text-center min-w-[160px]">
-      <div class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Quality Score</div>
-      <div class="text-4xl font-black mt-1 {{#if (gte product.qualityScore 80)}}text-emerald-700{{else}}{{#if (gte product.qualityScore 60)}}text-amber-700{{else}}text-rose-700{{/if}}{{/if}}">
-        {{product.qualityScore}}<span class="text-lg text-slate-400 font-semibold">/100</span>
+    <div class="flex flex-col items-center justify-center p-5 rounded-xl bg-slate-50 border border-slate-200 text-center min-w-[170px] self-stretch md:self-auto">
+      <span class="text-xs font-medium text-slate-500">Quality score</span>
+      <div class="text-4xl font-black mt-1 font-mono {{#if (gte product.qualityScore 80)}}text-emerald-800{{else}}{{#if (gte product.qualityScore 60)}}text-amber-800{{else}}text-rose-800{{/if}}{{/if}}">
+        {{product.qualityScore}}<span class="text-base text-slate-400 font-normal font-sans">/100</span>
       </div>
-      <div class="text-[10px] text-slate-400 mt-1">Explainable Formula (F04)</div>
+      <div class="text-xs font-semibold mt-1 {{#if (gte product.qualityScore 80)}}text-emerald-800{{else}}{{#if (gte product.qualityScore 60)}}text-amber-800{{else}}text-rose-800{{/if}}{{/if}}">
+        {{#if (gte product.qualityScore 80)}}Tier 1: High transparency{{else}}{{#if (gte product.qualityScore 60)}}Tier 2: Moderate quality{{else}}Tier 3: Elevated processing{{/if}}{{/if}}
+      </div>
+      <span class="text-[11px] text-slate-400 mt-0.5">Algorithm verified</span>
     </div>
   </div>
 
-  <!-- FEATURE F16: Personalized Health & Allergen Conflict Engine -->
-  {{#if user}}
+  <!-- FEATURE F16: Personalized Health & Allergen Conflict Engine (Consumers Only) -->
+  {{#if (eq user.role 'consumer')}}
     {{#if conflictEvaluation.profileConfigured}}
       {{#if conflictEvaluation.hasAllergenConflict}}
-        <div class="bg-rose-50 border-2 border-rose-600 rounded-lg p-5 space-y-3">
+        <div class="bg-rose-50 border-2 border-rose-600 rounded-xl p-5 space-y-3">
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-2">
-              <span class="w-6 h-6 rounded-full bg-rose-600 text-white flex items-center justify-center font-bold text-xs">⚠️</span>
-              <h3 class="text-sm font-black text-rose-950 uppercase tracking-tight">CRITICAL ALLERGEN CONFLICT DETECTED</h3>
+              <span class="w-5 h-5 rounded-full bg-rose-600 text-white flex items-center justify-center font-bold text-xs">!</span>
+              <h3 class="text-sm font-bold text-rose-950">Critical allergen conflict detected</h3>
             </div>
-            <a href="/personal/profile" class="text-[11px] font-bold text-rose-800 hover:text-rose-950 underline">Edit Profile</a>
+            <a href="/personal/profile" class="text-xs font-semibold text-rose-800 hover:text-rose-950 underline">Edit profile</a>
           </div>
-          <p class="text-xs text-rose-900 leading-relaxed font-medium">
-            This food product contains ingredients that conflict with your declared allergy profile:
+          <p class="text-xs text-rose-900 leading-relaxed">
+            This food product contains declared ingredients that conflict with your saved allergy profile:
           </p>
           <div class="space-y-1.5">
             {{#each conflictEvaluation.conflicts}}
               {{#if (eq this.category "allergen")}}
-                <div class="p-2.5 rounded bg-white border border-rose-300 text-xs flex items-start gap-2">
-                  <span class="font-bold text-rose-700 uppercase text-[10px] px-1.5 py-0.5 bg-rose-100 rounded">Match</span>
+                <div class="p-2.5 rounded-lg bg-white border border-rose-300 text-xs flex items-start gap-2">
+                  <span class="font-bold text-rose-700 text-[11px] px-1.5 py-0.5 bg-rose-100 rounded">Match</span>
                   <div>
                     <span class="font-bold text-rose-950">{{this.title}}</span>
                     <span class="block text-slate-700 text-[11px] mt-0.5">{{this.description}}</span>
@@ -80,13 +83,10 @@
       {{/if}}
 
       {{#if conflictEvaluation.hasDietaryConflict}}
-        <div class="bg-amber-50 border border-amber-300 rounded-lg p-4 space-y-2">
+        <div class="bg-amber-50 border border-amber-300 rounded-xl p-4 space-y-2">
           <div class="flex items-center justify-between">
-            <div class="flex items-center gap-2">
-              <span class="text-amber-700 font-bold">⚠️</span>
-              <h4 class="text-xs font-black text-amber-950 uppercase tracking-tight">Dietary Lifestyle Conflict</h4>
-            </div>
-            <a href="/personal/profile" class="text-[11px] font-bold text-amber-800 hover:text-amber-950 underline">Edit Profile</a>
+            <h4 class="text-xs font-bold text-amber-950">Dietary lifestyle conflict</h4>
+            <a href="/personal/profile" class="text-xs font-semibold text-amber-800 hover:text-amber-950 underline">Edit profile</a>
           </div>
           {{#each conflictEvaluation.conflicts}}
             {{#if (eq this.category "dietary")}}
@@ -97,10 +97,10 @@
       {{/if}}
 
       {{#if conflictEvaluation.hasNutritionWarning}}
-        <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 text-xs text-blue-900 flex items-start gap-2">
-          <span class="text-blue-700 font-bold">ℹ️</span>
+        <div class="bg-blue-50 border border-blue-200 rounded-xl p-3.5 text-xs text-blue-900 flex items-start gap-2">
+          <span class="text-blue-700 font-bold">Note:</span>
           <div>
-            <span class="font-bold">Nutritional Ceiling Warning:</span>
+            <span class="font-semibold">Nutritional target threshold:</span>
             {{#each conflictEvaluation.conflicts}}
               {{#if (eq this.category "nutrition")}}
                 <span class="block text-[11px] text-blue-800 mt-0.5">{{this.description}}</span>
@@ -111,29 +111,29 @@
       {{/if}}
 
       {{#if conflictEvaluation.isSafeForUser}}
-        <div class="bg-emerald-50 border border-emerald-300 rounded-lg p-4 flex items-center justify-between gap-3">
+        <div class="bg-emerald-50 border border-emerald-300 rounded-xl p-4 flex items-center justify-between gap-3">
           <div class="flex items-center gap-3">
-            <div class="w-6 h-6 bg-emerald-600 text-white rounded-full flex items-center justify-center font-bold text-xs flex-shrink-0">✓</div>
+            <div class="w-6 h-6 bg-emerald-700 text-white rounded-full flex items-center justify-center font-bold text-xs flex-shrink-0">✓</div>
             <div>
-              <h4 class="text-xs font-bold text-emerald-950 uppercase tracking-tight">Clear for Your Dietary Profile</h4>
+              <h4 class="text-xs font-bold text-emerald-950">Clear for your dietary profile</h4>
               <p class="text-xs text-emerald-800 mt-0.5">
-                No declared allergens or dietary restrictions from your profile ({{#each userProfile.allergies}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}{{#if userProfile.dietaryPreferences.length}} · {{#each userProfile.dietaryPreferences}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}{{/if}}) were flagged in this product.
+                No declared allergens or dietary restrictions from your profile ({{#each userProfile.allergies}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}{{#if userProfile.dietaryPreferences.length}} &bull; {{#each userProfile.dietaryPreferences}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}{{/if}}) were flagged in this product.
               </p>
             </div>
           </div>
-          <a href="/personal/profile" class="text-[11px] font-bold text-emerald-800 hover:text-emerald-950 underline flex-shrink-0">My Profile</a>
+          <a href="/personal/profile" class="text-xs font-semibold text-emerald-800 hover:text-emerald-950 underline flex-shrink-0">My profile</a>
         </div>
       {{/if}}
 
     {{else}}
       <!-- Profile Not Configured Callout -->
-      <div class="bg-slate-50 border border-slate-200 rounded-lg p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <div class="text-xs font-bold text-slate-800">Personalize Your Allergen Safety</div>
-          <div class="text-xs text-slate-500 mt-0.5">Configure your allergy and dietary preferences to see automated real-time conflict warnings.</div>
+          <div class="text-xs font-bold text-slate-800">Personalize your allergen safety shield</div>
+          <div class="text-xs text-slate-500 mt-0.5">Configure your allergy and dietary preferences to see real-time automated conflict warnings.</div>
         </div>
-        <a href="/personal/profile" class="px-3 py-1.5 bg-slate-900 text-white font-bold text-xs rounded hover:bg-slate-800 text-center flex-shrink-0">
-          Configure Profile &rarr;
+        <a href="/personal/profile" class="px-3.5 py-2 bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs rounded-lg text-center flex-shrink-0 transition-colors">
+          Configure profile
         </a>
       </div>
     {{/if}}
@@ -141,13 +141,13 @@
 
   <!-- Allergen Warning Banner (If allergens declared) -->
   {{#if allergens.length}}
-    <div class="bg-rose-50 border-2 border-rose-300 rounded-lg p-4 flex items-start gap-3">
+    <div class="bg-rose-50 border-2 border-rose-300 rounded-xl p-4 flex items-start gap-3">
       <div class="w-6 h-6 bg-rose-600 text-white rounded-full flex items-center justify-center font-bold text-xs flex-shrink-0 mt-0.5">!</div>
       <div>
-        <h4 class="text-sm font-black text-rose-900 uppercase tracking-tight">Declared Allergen Warning</h4>
+        <h4 class="text-sm font-bold text-rose-900">Declared allergen notice</h4>
         <p class="text-xs text-rose-800 mt-0.5">This food product contains declared allergens: 
           {{#each allergens}}
-            <span class="font-bold underline">{{this.name}} ({{this.allergenType}})</span>{{#unless @last}}, {{/unless}}
+            <span class="font-semibold underline">{{this.name}} ({{this.allergenType}})</span>{{#unless @last}}, {{/unless}}
           {{/each}}.
         </p>
       </div>

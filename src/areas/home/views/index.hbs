@@ -1,0 +1,609 @@
+<div class="space-y-16 pb-16 pt-4 sm:pt-6 lg:pt-10">
+
+  <!-- ROLE-CONTEXTUAL DASHBOARD MODULE (Adapts per Role) -->
+  {{#if (eq user.role "consumer")}}
+    <!-- Consumer Persona Panel -->
+    <div class="p-6 rounded-2xl bg-gradient-to-r from-blue-50/80 via-white to-slate-50 border border-blue-200 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+      <div class="space-y-2">
+        <div class="flex items-center gap-2">
+          <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase tracking-wider bg-blue-100 text-blue-900 border border-blue-300">
+            Consumer Health Guard Active
+          </span>
+          <span class="text-xs text-slate-500 font-medium font-mono">User ID: #{{user.id}}</span>
+        </div>
+        <h2 class="text-xl font-extrabold text-slate-950 tracking-tight">
+          Welcome back, {{user.name}}
+        </h2>
+        <div class="flex flex-wrap items-center gap-2 text-xs text-slate-600 pt-1">
+          <span class="font-bold text-slate-700">Monitored Allergens:</span>
+          {{#if userProfile.allergies.length}}
+            {{#each userProfile.allergies}}
+              <span class="px-2 py-0.5 rounded text-[11px] font-bold uppercase bg-rose-100 text-rose-800 border border-rose-200">
+                ⚠️ {{this}}
+              </span>
+            {{/each}}
+          {{else}}
+            <span class="text-slate-500 italic">No allergens declared yet</span>
+          {{/if}}
+
+          {{#if userProfile.dietaryTags.length}}
+            <span class="text-slate-300">|</span>
+            <span class="font-bold text-slate-700">Lifestyle:</span>
+            {{#each userProfile.dietaryTags}}
+              <span class="px-2 py-0.5 rounded text-[11px] font-bold uppercase bg-slate-100 text-slate-800 border border-slate-200">
+                {{this}}
+              </span>
+            {{/each}}
+          {{/if}}
+        </div>
+      </div>
+
+      <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
+        <div class="flex items-center gap-3 p-3 bg-white rounded-xl border border-slate-200 text-xs">
+          <div class="text-center px-2 border-r border-slate-100">
+            <div class="font-mono text-lg font-black text-emerald-700">{{roleInsights.userSafeProductsCount}}</div>
+            <div class="text-[10px] uppercase font-bold text-slate-500">Safe Foods</div>
+          </div>
+          <div class="text-center px-2">
+            <div class="font-mono text-lg font-black text-rose-700">{{roleInsights.userAllergenConflictsCount}}</div>
+            <div class="text-[10px] uppercase font-bold text-slate-500">Flagged</div>
+          </div>
+        </div>
+        <a href="/personal/profile" class="px-4 py-2.5 rounded-xl bg-slate-950 hover:bg-slate-800 text-white font-bold text-xs uppercase tracking-wider text-center transition-colors shadow-sm">
+          Update Allergen Profile
+        </a>
+      </div>
+    </div>
+  {{/if}}
+
+  {{#if (eq user.role "manufacturer")}}
+    <!-- Manufacturer Persona Panel -->
+    <div class="p-6 rounded-2xl bg-gradient-to-r from-emerald-50/80 via-white to-slate-50 border border-emerald-200 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+      <div class="space-y-2">
+        <div class="flex items-center gap-2">
+          <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase tracking-wider bg-emerald-100 text-emerald-900 border border-emerald-300">
+            Manufacturer Enterprise Terminal
+          </span>
+          <span class="text-xs text-slate-500 font-medium font-mono">Org ID: #{{user.id}}</span>
+        </div>
+        <h2 class="text-xl font-extrabold text-slate-950 tracking-tight">
+          Welcome back, {{user.name}}
+        </h2>
+        <p class="text-xs text-slate-600 max-w-xl">
+          Manage your enterprise packaged foods, submit official laboratory analysis test reports, and link verified trade licences to maintain a certified compliance standing.
+        </p>
+      </div>
+
+      <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
+        <div class="p-3 bg-white rounded-xl border border-slate-200 text-xs text-center px-4">
+          <div class="font-mono text-lg font-black text-emerald-700">{{roleInsights.manufacturerDocsCount}}</div>
+          <div class="text-[10px] uppercase font-bold text-slate-500">Submitted Certs</div>
+        </div>
+        <div class="flex flex-col gap-2">
+          <a href="/catalog/manage/create" class="px-4 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs uppercase tracking-wider text-center transition-colors shadow-sm inline-flex items-center justify-center gap-1.5">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+            <span>Register New Product</span>
+          </a>
+          <a href="/safety/documents/upload" class="px-4 py-2.5 rounded-xl bg-white border border-emerald-700 text-emerald-800 hover:bg-emerald-50 font-bold text-xs uppercase tracking-wider text-center transition-colors inline-flex items-center justify-center gap-1.5">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+            <span>Upload Compliance Doc</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  {{/if}}
+
+  {{#if (eq user.role "inspector")}}
+    <!-- Inspector Persona Panel -->
+    <div class="p-6 rounded-2xl bg-gradient-to-r from-amber-50/80 via-white to-slate-50 border border-amber-200 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+      <div class="space-y-2">
+        <div class="flex items-center gap-2">
+          <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase tracking-wider bg-amber-100 text-amber-900 border border-amber-300">
+            Official Food Safety Inspection Terminal
+          </span>
+          <span class="text-xs text-slate-500 font-medium font-mono">Regulator ID: #{{user.id}}</span>
+        </div>
+        <h2 class="text-xl font-extrabold text-slate-950 tracking-tight">
+          {{user.name}} · Regulatory Inspector (BFSA / BSTI)
+        </h2>
+        <p class="text-xs text-slate-600 max-w-xl">
+          Authorized food safety oversight terminal. Audit manufacturer compliance documents, review lab tests, and issue official approvals or rejections with mandatory audit notes.
+        </p>
+      </div>
+
+      <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
+        <div class="flex items-center gap-3 p-3 bg-white rounded-xl border border-slate-200 text-xs">
+          <div class="text-center px-3 border-r border-slate-100">
+            <div class="font-mono text-lg font-black text-amber-700">{{stats.pendingDocs}}</div>
+            <div class="text-[10px] uppercase font-bold text-slate-500">Pending Review</div>
+          </div>
+          <div class="text-center px-3">
+            <div class="font-mono text-lg font-black text-emerald-700">{{stats.approvedDocs}}</div>
+            <div class="text-[10px] uppercase font-bold text-slate-500">Approved</div>
+          </div>
+        </div>
+        <a href="/safety/documents?status=pending" class="px-5 py-3 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs uppercase tracking-wider text-center transition-colors shadow-sm whitespace-nowrap">
+          Open Audit Queue ({{stats.pendingDocs}})
+        </a>
+      </div>
+    </div>
+  {{/if}}
+
+  {{#if (eq user.role "admin")}}
+    <!-- Admin Persona Panel -->
+    <div class="p-6 rounded-2xl bg-gradient-to-r from-slate-100/90 via-white to-slate-50 border border-slate-300 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+      <div class="space-y-2">
+        <div class="flex items-center gap-2">
+          <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase tracking-wider bg-slate-900 text-white border border-slate-900">
+            Platform Governance Terminal
+          </span>
+          <span class="text-xs text-slate-500 font-medium font-mono">Admin ID: #{{user.id}}</span>
+        </div>
+        <h2 class="text-xl font-extrabold text-slate-950 tracking-tight">
+          {{user.name}} · Platform Administrator
+        </h2>
+        <p class="text-xs text-slate-600 max-w-xl">
+          Complete administrative control over user identity governance, catalog transparency records, regulatory audit review queues, and system parameters.
+        </p>
+      </div>
+
+      <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
+        <div class="flex items-center gap-3 p-3 bg-white rounded-xl border border-slate-200 text-xs">
+          <div class="text-center px-3 border-r border-slate-100">
+            <div class="font-mono text-lg font-black text-slate-900">{{stats.products}}</div>
+            <div class="text-[10px] uppercase font-bold text-slate-500">Catalog Foods</div>
+          </div>
+          <div class="text-center px-3">
+            <div class="font-mono text-lg font-black text-amber-700">{{stats.pendingDocs}}</div>
+            <div class="text-[10px] uppercase font-bold text-slate-500">Pending Audits</div>
+          </div>
+        </div>
+        <div class="flex flex-col sm:flex-row gap-2">
+          <a href="/dashboard/admin" class="px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs uppercase tracking-wider text-center transition-colors shadow-sm whitespace-nowrap">
+            Admin Console
+          </a>
+          <a href="/catalog/manage/create" class="px-4 py-2.5 rounded-xl bg-white border border-slate-300 text-slate-800 hover:bg-slate-50 font-bold text-xs uppercase tracking-wider text-center transition-colors whitespace-nowrap inline-flex items-center justify-center gap-1.5">
+            <svg class="w-3.5 h-3.5 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+            <span>Add Food</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  {{/if}}
+
+  <!-- SECTION 1: ASYMMETRIC EDITORIAL HERO -->
+  <section class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center pt-2 sm:pt-4 lg:pt-6">
+    <!-- Left Column (7 cols): Editorial Mission & Omnibar -->
+    <div class="lg:col-span-7 space-y-6">
+      
+      <div class="space-y-3">
+        <span class="text-xs font-bold tracking-wider uppercase text-emerald-800 bg-emerald-50 px-2.5 py-1 rounded border border-emerald-200">
+          Independent Food Quality & Safety Standard
+        </span>
+        
+        <h1 class="font-serif font-normal text-4xl sm:text-5xl lg:text-6xl text-slate-950 tracking-tight leading-[1.08]">
+          Every ingredient decoded.<br />
+          Every safety claim verified.
+        </h1>
+
+        <p class="text-slate-600 text-base sm:text-lg leading-relaxed max-w-2xl pt-1">
+          TrueLabel brings forensic transparency to packaged groceries. We compute an explainable 0–100 Food Quality Score, audit manufacturer credentials against national regulatory registries (BSTI, BFSA, FDA), and protect households against concealed allergens.
+        </p>
+      </div>
+
+      <!-- Live Omnibar Search & Barcode Lookup -->
+      <div class="space-y-3 pt-2">
+        <form action="/catalog" method="GET" class="flex flex-col sm:flex-row items-stretch gap-2 bg-white p-2 rounded-xl border-2 border-slate-900 shadow-[0_4px_20px_-4px_rgba(15,23,42,0.12)]">
+          <div class="relative flex-grow">
+            <div class="absolute inset-y-0 left-3.5 flex items-center pointer-events-none text-slate-400">
+              <svg class="w-5 h-5 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+            </div>
+            <input
+              type="text"
+              name="q"
+              placeholder="Search by food name, brand, or barcode (e.g. Oat, Peanut, 890123...)"
+              class="w-full pl-11 pr-4 py-3 bg-transparent text-slate-900 text-sm font-semibold focus:outline-none placeholder-slate-400 font-sans"
+            />
+          </div>
+          <button
+            type="submit"
+            class="px-6 py-3 bg-slate-950 hover:bg-slate-800 text-white font-bold text-xs uppercase tracking-wider rounded-lg transition-colors flex items-center justify-center gap-2 whitespace-nowrap shadow-sm"
+          >
+            <span>Inspect Catalog</span>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+          </button>
+        </form>
+
+        <!-- Discovery Filter Query Chips -->
+        <div class="flex flex-wrap items-center gap-2 text-xs text-slate-600 pt-1">
+          <span class="font-bold text-slate-500">Quick queries:</span>
+          {{#each quickCategories}}
+            <a href="/catalog?category={{urlEncode this}}" class="px-2.5 py-1 rounded bg-slate-100 hover:bg-slate-200 text-slate-800 font-medium transition-colors border border-slate-200">{{this}}</a>
+          {{/each}}
+          {{#each quickTags}}
+            <a href="/catalog?tag={{urlEncode this}}" class="px-2.5 py-1 rounded bg-slate-100 hover:bg-slate-200 text-slate-800 font-medium transition-colors border border-slate-200">{{this}}</a>
+          {{/each}}
+        </div>
+      </div>
+
+      <!-- Quick Action Buttons -->
+      <div class="flex flex-wrap items-center gap-3 pt-2">
+        <a href="/catalog" class="px-5 py-2.5 rounded-lg bg-slate-900 text-white hover:bg-slate-800 font-bold text-xs uppercase tracking-wider transition-all shadow-sm">
+          Browse All Foods ({{stats.products}})
+        </a>
+        <a href="/safety/licence/verify" class="px-5 py-2.5 rounded-lg bg-white border border-slate-300 text-slate-800 hover:bg-slate-50 font-bold text-xs uppercase tracking-wider transition-all shadow-sm">
+          Verify Government Licence
+        </a>
+        {{#if user}}
+          <a href="/personal/profile" class="px-5 py-2.5 rounded-lg bg-emerald-50 border border-emerald-300 text-emerald-800 hover:bg-emerald-100 font-bold text-xs uppercase tracking-wider transition-all">
+            My Allergen Profile
+          </a>
+        {{/if}}
+      </div>
+
+    </div>
+
+    <!-- Right Column (5 cols): Authentic Specimen Product Dossier -->
+    <div class="lg:col-span-5">
+      <div class="bg-white border-2 border-slate-900 rounded-2xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.06)] relative overflow-hidden">
+        
+        <!-- Dossier Header -->
+        <div class="flex items-center justify-between border-b-2 border-slate-900 pb-4 mb-4">
+          <div>
+            <div class="text-[10px] font-mono uppercase font-bold tracking-wider text-slate-500">Official TrueLabel Dossier</div>
+            <div class="font-extrabold text-slate-950 text-base leading-tight mt-0.5">
+              {{#if dossierProduct}}{{dossierProduct.brand}} {{dossierProduct.name}}{{else}}PureHarvest Organic Oat Drink{{/if}}
+            </div>
+          </div>
+          <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase {{#if dossierSpecimen.tierInfo}}{{dossierSpecimen.tierInfo.badgeBgClass}}{{else}}{{#if (gte dossierProduct.qualityScore 80)}}bg-emerald-100 text-emerald-800 border border-emerald-300 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800{{else}}{{#if (gte dossierProduct.qualityScore 60)}}bg-amber-100 text-amber-800 border border-amber-300 dark:bg-amber-950/60 dark:text-amber-300 dark:border-amber-800{{else}}bg-rose-100 text-rose-800 border border-rose-300 dark:bg-rose-950/60 dark:text-rose-300 dark:border-rose-800{{/if}}{{/if}}{{/if}}">
+            {{#if dossierSpecimen.tierInfo}}{{dossierSpecimen.tierInfo.badgeLabel}}{{else}}{{#if (gte dossierProduct.qualityScore 80)}}Verified Record{{else}}{{#if (gte dossierProduct.qualityScore 60)}}Moderate Formulation{{else}}Quality Alert Flagged{{/if}}{{/if}}{{/if}}
+          </span>
+        </div>
+
+        <!-- The Quality Score Highlight -->
+        <div class="flex items-center justify-between p-4 bg-slate-50 rounded-xl border border-slate-200 mb-4">
+          <div>
+            <div class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Food Quality Score</div>
+            <div class="text-3xl font-black font-mono tracking-tight {{#if dossierSpecimen.tierInfo}}{{dossierSpecimen.tierInfo.textColorClass}}{{else}}{{#if (gte dossierProduct.qualityScore 80)}}text-emerald-700 dark:text-emerald-400{{else}}{{#if (gte dossierProduct.qualityScore 60)}}text-amber-700 dark:text-amber-400{{else}}text-rose-700 dark:text-rose-400{{/if}}{{/if}}{{/if}}">
+              {{#if dossierProduct}}{{dossierProduct.qualityScore}}{{else}}92{{/if}}<span class="text-lg text-slate-400 font-bold">/100</span>
+            </div>
+            <div class="text-[11px] font-bold mt-0.5 {{#if dossierSpecimen.tierInfo}}{{dossierSpecimen.tierInfo.tierColorClass}}{{else}}{{#if (gte dossierProduct.qualityScore 80)}}text-emerald-800 dark:text-emerald-300{{else}}{{#if (gte dossierProduct.qualityScore 60)}}text-amber-800 dark:text-amber-300{{else}}text-rose-800 dark:text-rose-400{{/if}}{{/if}}{{/if}}">
+              {{#if dossierSpecimen.tierInfo}}{{dossierSpecimen.tierInfo.tierLabel}}{{else}}{{#if (gte dossierProduct.qualityScore 80)}}Tier 1 · Superior Transparency{{else}}{{#if (gte dossierProduct.qualityScore 60)}}Tier 2 · Moderate Quality{{else}}Tier 3 · Elevated Processing & Additives{{/if}}{{/if}}{{/if}}
+            </div>
+          </div>
+          <div class="text-right text-xs space-y-1">
+            <div class="text-slate-500 font-medium">Serving: <strong class="text-slate-800">{{#if dossierProduct}}{{dossierProduct.servingSize}}{{dossierProduct.servingUnit}}{{else}}250 ml{{/if}}</strong></div>
+            <div class="text-slate-500 font-medium">Category: <strong class="text-slate-800">{{#if dossierProduct}}{{dossierProduct.category}}{{else}}Beverages{{/if}}</strong></div>
+            <div class="text-slate-500 font-medium">Barcode: <strong class="text-slate-800 font-mono">{{#if dossierProduct}}{{dossierProduct.barcode}}{{else}}9312345678901{{/if}}</strong></div>
+          </div>
+        </div>
+
+        <!-- Forensic Specimen Breakdown Grid -->
+        <div class="space-y-2.5 text-xs">
+          <!-- Row 1: Additive Check -->
+          <div class="flex items-center justify-between py-1.5 border-b border-slate-100">
+            <span class="text-slate-600 font-medium">Synthetic Additives / Binders:</span>
+            {{#if dossierSpecimen.additivesSummary}}
+              <span class="font-bold px-2 py-0.5 rounded {{dossierSpecimen.additivesSummary.badgeClass}}">
+                {{dossierSpecimen.additivesSummary.label}}
+              </span>
+            {{else}}
+              <span class="font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded">0 Detected (Clean Label)</span>
+            {{/if}}
+          </div>
+
+          <!-- Row 2: Allergen Integrity -->
+          <div class="flex items-center justify-between py-1.5 border-b border-slate-100">
+            <span class="text-slate-600 font-medium">Allergen Declarations:</span>
+            {{#if dossierSpecimen.allergensSummary}}
+              <span class="font-bold px-2 py-0.5 rounded {{dossierSpecimen.allergensSummary.badgeClass}}">
+                {{dossierSpecimen.allergensSummary.label}}
+              </span>
+            {{else}}
+              <span class="font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded">0 Declared (Clean Formulation)</span>
+            {{/if}}
+          </div>
+
+          <!-- Row 3: Nutrition Benchmark -->
+          <div class="flex items-center justify-between py-1.5 border-b border-slate-100">
+            <span class="text-slate-600 font-medium">Sugar Saturation:</span>
+            {{#if dossierSpecimen.sugarSummary}}
+              <span class="{{dossierSpecimen.sugarSummary.colorClass}}">
+                {{dossierSpecimen.sugarSummary.label}}
+              </span>
+            {{else}}
+              <span class="font-bold text-emerald-700 font-mono">2.8g / 100ml (Low Density)</span>
+            {{/if}}
+          </div>
+
+          <!-- Row 4: Government Accreditation -->
+          <div class="flex items-center justify-between py-1.5 border-b border-slate-100">
+            <span class="text-slate-600 font-medium">National Licence:</span>
+            <span class="font-bold font-mono text-slate-900">
+              {{#if dossierSpecimen.nationalLicence}}{{dossierSpecimen.nationalLicence}}{{else}}BSTI-FOOD-2024-001 (Valid){{/if}}
+            </span>
+          </div>
+        </div>
+
+        <!-- Declared Ingredients Snippet -->
+        <div class="mt-4 p-3 rounded-lg bg-slate-50 border border-slate-200 text-xs">
+          <div class="font-bold text-slate-800 mb-1">Declared Ingredients:</div>
+          <div class="text-slate-600 leading-relaxed font-medium">
+            {{#if dossierProduct.ingredients.length}}
+              {{#each dossierProduct.ingredients}}
+                <span class="{{#if this.isAllergen}}font-bold text-amber-700 underline decoration-amber-400{{else}}{{#if this.additiveCode}}font-bold text-rose-700{{/if}}{{/if}}">{{this.name}}{{#if this.additiveCode}} ({{this.additiveCode}}){{/if}}{{#unless @last}}, {{/unless}}</span>
+              {{/each}}
+            {{else}}
+              {{#if dossierProduct.description}}{{dossierProduct.description}}{{else}}Filtered Water, Organic Whole Oats (15%), Cold-Pressed Sunflower Oil, Sea Salt.{{/if}}
+            {{/if}}
+          </div>
+        </div>
+
+        <!-- Action Button -->
+        <div class="mt-4 pt-3 border-t border-slate-100">
+          <a
+            href="{{#if dossierProduct}}/catalog/product/{{dossierProduct.id}}{{else}}/catalog{{/if}}"
+            class="w-full py-2.5 px-4 rounded-lg bg-slate-950 hover:bg-slate-800 text-white font-bold text-xs uppercase tracking-wider text-center flex items-center justify-center gap-2 transition-colors shadow-sm"
+          >
+            <span>Inspect Full Product Nutrition Facts</span>
+            <span>&rarr;</span>
+          </a>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 2: HOW THE TRUELABEL SCORE IS CALCULATED (MATHEMATICAL ARCHITECTURE) -->
+  <section class="bg-white border border-slate-200 rounded-2xl p-8 sm:p-10 shadow-sm space-y-8">
+    <div class="max-w-3xl">
+      <span class="text-xs font-bold uppercase tracking-wider text-emerald-800 bg-emerald-50 px-2.5 py-1 rounded border border-emerald-200">
+        Scientific Methodology
+      </span>
+      <h2 class="font-serif font-normal text-3xl sm:text-4xl text-slate-950 tracking-tight mt-2">
+        The TrueLabel 0–100 Food Quality Formula
+      </h2>
+      <p class="text-slate-600 text-sm sm:text-base mt-2 leading-relaxed">
+        Our scoring model eliminates subjective reviews and commercial bias. Every product receives a deterministic score derived from four distinct, mathematically weighted pillars.
+      </p>
+    </div>
+
+    <!-- The 4-Part Segmented Visual Bar -->
+    <div class="space-y-2">
+      <div class="h-3 w-full rounded-full overflow-hidden flex bg-slate-100 shadow-inner">
+        <div class="bg-emerald-700 h-full w-[40%]" title="40% Ingredients & Additive Safety"></div>
+        <div class="bg-teal-600 h-full w-[30%]" title="30% Nutritional Profile & Salt/Sugar Limits"></div>
+        <div class="bg-blue-600 h-full w-[20%]" title="20% Regulatory Accreditations & Lab Audits"></div>
+        <div class="bg-amber-600 h-full w-[10%]" title="10% Batch Integrity & Contamination Recalls"></div>
+      </div>
+      <div class="flex flex-wrap items-center justify-between text-xs font-semibold text-slate-500 pt-1">
+        <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-sm bg-emerald-700"></span> 40% Ingredients & Additives</span>
+        <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-sm bg-teal-600"></span> 30% Nutritional Balance</span>
+        <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-sm bg-blue-600"></span> 20% Regulatory Licences</span>
+        <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-sm bg-amber-600"></span> 10% Batch Recalls</span>
+      </div>
+    </div>
+
+    <!-- The 4 Pillar Columns -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 pt-2">
+      <!-- Pillar 1 -->
+      <div class="p-5 rounded-xl bg-slate-50 border border-slate-200 flex flex-col justify-between space-y-4">
+        <div>
+          <div class="font-mono text-xs font-bold text-emerald-800 uppercase tracking-wider">Weight: 40%</div>
+          <h3 class="font-extrabold text-slate-900 text-base mt-1">Ingredient Toxicology</h3>
+          <p class="text-xs text-slate-600 mt-2 leading-relaxed">
+            Declared ingredients are checked against international additive databases. High-risk preservatives, artificial food dyes (E-numbers), and ultra-processed binders are heavily penalized.
+          </p>
+        </div>
+        <div class="text-[11px] font-bold text-slate-500 pt-3 border-t border-slate-200">
+          Toxicological Screening Engine
+        </div>
+      </div>
+
+      <!-- Pillar 2 -->
+      <div class="p-5 rounded-xl bg-slate-50 border border-slate-200 flex flex-col justify-between space-y-4">
+        <div>
+          <div class="font-mono text-xs font-bold text-teal-800 uppercase tracking-wider">Weight: 30%</div>
+          <h3 class="font-extrabold text-slate-900 text-base mt-1">Nutritional Density</h3>
+          <p class="text-xs text-slate-600 mt-2 leading-relaxed">
+            Evaluates energy saturation, sodium density, saturated fats, and sugar concentration against WHO/FDA daily limits per 100g/ml. Wholesome protein and fiber yield positive adjustments.
+          </p>
+        </div>
+        <div class="text-[11px] font-bold text-slate-500 pt-3 border-t border-slate-200">
+          Multi-Factor Scoring Model
+        </div>
+      </div>
+
+      <!-- Pillar 3 -->
+      <div class="p-5 rounded-xl bg-slate-50 border border-slate-200 flex flex-col justify-between space-y-4">
+        <div>
+          <div class="font-mono text-xs font-bold text-blue-800 uppercase tracking-wider">Weight: 20%</div>
+          <h3 class="font-extrabold text-slate-900 text-base mt-1">Accreditation Audits</h3>
+          <p class="text-xs text-slate-600 mt-2 leading-relaxed">
+            Verifies manufacturer licences against official BSTI, BFSA, and FDA government registries. Valid ISO 22000 certificates, Halal proofs, and accredited lab test reports boost the score.
+          </p>
+        </div>
+        <div class="text-[11px] font-bold text-slate-500 pt-3 border-t border-slate-200">
+          Regulatory Compliance Audit
+        </div>
+      </div>
+
+      <!-- Pillar 4 -->
+      <div class="p-5 rounded-xl bg-slate-50 border border-slate-200 flex flex-col justify-between space-y-4">
+        <div>
+          <div class="font-mono text-xs font-bold text-amber-800 uppercase tracking-wider">Weight: 10%</div>
+          <h3 class="font-extrabold text-slate-900 text-base mt-1">Batch Safety & Recalls</h3>
+          <p class="text-xs text-slate-600 mt-2 leading-relaxed">
+            Continuous surveillance of batch codes and expiration thresholds. Products flagged in active health recalls or counterfeit reports are immediately downgraded.
+          </p>
+        </div>
+        <div class="text-[11px] font-bold text-slate-500 pt-3 border-t border-slate-200">
+          Public Health Recall Surveillance
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 3: SYSTEM TRANSPARENCY METRICS (TABULAR DATA) -->
+  <section class="grid grid-cols-2 md:grid-cols-4 gap-4">
+    <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Audited Foods</div>
+      <div class="text-4xl font-extrabold text-slate-950 mt-2 font-mono tracking-tight">{{stats.products}}</div>
+      <div class="text-xs text-slate-500 mt-1">Packaged products cataloged with full nutrition facts</div>
+    </div>
+
+    <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Safety Documents</div>
+      <div class="text-4xl font-extrabold text-slate-950 mt-2 font-mono tracking-tight">{{stats.documents}}</div>
+      <div class="text-xs text-slate-500 mt-1">Lab reports, trade licences, and ISO certificates</div>
+    </div>
+
+    <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Inspector Approvals</div>
+      <div class="text-4xl font-extrabold text-emerald-700 mt-2 font-mono tracking-tight">{{stats.approvedDocs}}</div>
+      <div class="text-xs text-slate-500 mt-1">Regulator-reviewed and audited compliance records</div>
+    </div>
+
+    <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
+      <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Traceability</div>
+      <div class="text-4xl font-extrabold text-slate-950 mt-2 font-mono tracking-tight">100%</div>
+      <div class="text-xs text-slate-500 mt-1">Deterministic calculations with zero sponsored results</div>
+    </div>
+  </section>
+
+  <!-- SECTION 4: FOOD CATALOG SPOTLIGHT (REAL DATABASE RECORDS) -->
+  <section class="space-y-6">
+    <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-slate-200 pb-4">
+      <div>
+        <span class="text-xs font-bold uppercase tracking-wider text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+          Live Repository
+        </span>
+        <h2 class="font-serif font-normal text-3xl text-slate-950 tracking-tight mt-1">
+          Featured Food Products Audited
+        </h2>
+        <p class="text-sm text-slate-600 mt-1">
+          Real packaged foods with live Quality Scores, full nutrition declarations, and personalized allergen compatibility.
+        </p>
+      </div>
+      <a href="/catalog" class="text-xs font-bold text-slate-900 hover:text-emerald-700 flex items-center gap-1 self-start sm:self-auto font-sans">
+        <span>View Full Catalog ({{stats.products}} items)</span>
+        <span>&rarr;</span>
+      </a>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      {{#each featuredProducts}}
+        {{> _food_card this}}
+      {{/each}}
+    </div>
+  </section>
+
+  <!-- SECTION 5: INTERACTIVE GOVERNMENT LICENCE VERIFIER (BSTI, BFSA, FDA) -->
+  <section class="bg-white rounded-2xl p-8 sm:p-12 border-2 border-slate-900 shadow-[0_8px_30px_rgb(0,0,0,0.04)] space-y-6">
+    <div class="max-w-3xl mx-auto text-center space-y-3">
+      <span class="inline-flex items-center px-3 py-1 rounded text-xs font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">
+        National Food Standards Registry
+      </span>
+      <h2 class="font-serif font-normal text-3xl sm:text-4xl text-slate-950 tracking-tight">
+        Verify Manufacturer Accreditation Live
+      </h2>
+      <p class="text-slate-600 text-sm max-w-xl mx-auto leading-relaxed">
+        Verify the legal registration standing, accreditation status, and expiration dates of food manufacturers against national and international food standards bodies (BSTI, BFSA, FDA).
+      </p>
+    </div>
+
+    <!-- Live Licence Verification Input -->
+    <form action="/safety/licence/verify" method="GET" class="flex flex-col sm:flex-row gap-2 max-w-xl mx-auto">
+      <input
+        type="text"
+        name="licenceNumber"
+        required
+        placeholder="Enter licence number (e.g. BSTI-FOOD-2024-001)"
+        class="flex-grow px-4 py-3 rounded-lg bg-slate-50 text-slate-900 border border-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-900 font-mono text-sm placeholder-slate-400 font-medium"
+      />
+      <button
+        type="submit"
+        class="px-6 py-3 bg-slate-950 hover:bg-slate-800 text-white font-bold text-xs uppercase tracking-wider rounded-lg transition-colors whitespace-nowrap shadow-sm"
+      >
+        Verify Credential
+      </button>
+    </form>
+
+    <!-- Quick Sample Demo Tests -->
+    <div class="max-w-xl mx-auto">
+      {{> _sample_licence_chips}}
+    </div>
+  </section>
+
+  <!-- SECTION 6: THREE STAKEHOLDER WORKFLOWS -->
+  <section class="space-y-6">
+    <div class="border-b border-slate-200 pb-4">
+      <span class="text-xs font-bold uppercase tracking-wider text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+        User Ecosystem
+      </span>
+      <h2 class="font-serif font-normal text-3xl text-slate-950 tracking-tight mt-1">
+        Built for the Entire Food Supply Chain
+      </h2>
+      <p class="text-sm text-slate-600 mt-1">
+        TrueLabel connects consumers, compliant brands, and certified inspectors on a single verifiable platform.
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <!-- Workflow 1: Consumers -->
+      <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-sm flex flex-col justify-between space-y-6">
+        <div class="space-y-3">
+          <span class="inline-flex px-2.5 py-0.5 rounded text-xs font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">
+            Consumers & Households
+          </span>
+          <h3 class="font-extrabold text-slate-950 text-lg">Safe Food Discovery</h3>
+          <p class="text-xs text-slate-600 leading-relaxed">
+            Search packaged foods by barcode or brand, inspect authentic nutrition panels, set up automated Big-9 allergen warnings, and compare items side-by-side to make confident buying choices.
+          </p>
+        </div>
+        <div class="pt-4 border-t border-slate-100">
+          <a href="/catalog" class="text-xs font-semibold text-slate-900 hover:text-emerald-700 underline font-sans">
+            Explore consumer catalog
+          </a>
+        </div>
+      </div>
+
+      <!-- Workflow 2: Manufacturers -->
+      <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-sm flex flex-col justify-between space-y-6">
+        <div class="space-y-3">
+          <span class="inline-flex px-2.5 py-0.5 rounded text-xs font-semibold bg-blue-50 text-blue-800 border border-blue-200">
+            Food Manufacturers
+          </span>
+          <h3 class="font-extrabold text-slate-950 text-lg">Compliance Accreditation</h3>
+          <p class="text-xs text-slate-600 leading-relaxed">
+            Maintain accurate product listings, upload accredited lab analysis reports, link valid BSTI/BFSA/FDA trade licences, and earn verified trust seals to differentiate clean formulations.
+          </p>
+        </div>
+        <div class="pt-4 border-t border-slate-100">
+          <a href="/safety/documents/upload" class="text-xs font-semibold text-blue-700 hover:underline font-sans">
+            Submit safety certificates
+          </a>
+        </div>
+      </div>
+
+      <!-- Workflow 3: Inspectors -->
+      <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-sm flex flex-col justify-between space-y-6">
+        <div class="space-y-3">
+          <span class="inline-flex px-2.5 py-0.5 rounded text-xs font-semibold bg-amber-50 text-amber-800 border border-amber-200">
+            Safety Inspectors
+          </span>
+          <h3 class="font-extrabold text-slate-950 text-lg">Regulatory Audit Bench</h3>
+          <p class="text-xs text-slate-600 leading-relaxed">
+            Audit submitted compliance documents, review lab accreditations, record formal approval/rejection decisions with mandatory audit reasons, and issue batch contamination recalls.
+          </p>
+        </div>
+        <div class="pt-4 border-t border-slate-100">
+          <a href="/safety/documents" class="text-xs font-semibold text-amber-800 hover:underline font-sans">
+            Inspect safety documents
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>

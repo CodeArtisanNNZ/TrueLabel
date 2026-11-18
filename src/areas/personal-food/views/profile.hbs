@@ -5,7 +5,7 @@
     <a href="/catalog" class="text-xs font-bold text-slate-500 hover:text-slate-900 flex items-center gap-1">
       &larr; Back to Catalog
     </a>
-    <span class="text-xs text-slate-400 font-mono">Feature F16 · Active Health Profile</span>
+    <span class="text-xs text-slate-400 font-mono">Personal Health Profile</span>
   </div>
 
   <!-- Header Banner -->
@@ -37,6 +37,7 @@
 
   <!-- Main Profile Form -->
   <form action="/personal/profile" method="POST" class="space-y-6">
+    <input type="hidden" name="_csrf" value="{{csrfToken}}">
 
     <!-- SECTION 1: Declared Food Allergies (The Big 9) -->
     <div class="bg-white border border-slate-200 rounded-lg p-6 space-y-4">
@@ -219,7 +220,7 @@
 
         <div>
           <label for="gender" class="block text-xs font-bold text-slate-700">Gender</label>
-          <select id="gender" name="gender" class="mt-1 block w-full px-3 py-2 text-xs border border-slate-300 rounded bg-white">
+          <select id="gender" name="gender" class="mt-1 block w-full px-3.5 py-2 text-xs border border-slate-300 rounded-lg font-medium text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:border-transparent shadow-sm transition-all">
             <option value="">Select</option>
             <option value="male" {{#if (eq profile.gender 'male')}}selected{{/if}}>Male</option>
             <option value="female" {{#if (eq profile.gender 'female')}}selected{{/if}}>Female</option>
@@ -259,7 +260,7 @@
 
         <div>
           <label for="activityLevel" class="block text-xs font-bold text-slate-700">Activity Level</label>
-          <select id="activityLevel" name="activityLevel" class="mt-1 block w-full px-3 py-2 text-xs border border-slate-300 rounded bg-white">
+          <select id="activityLevel" name="activityLevel" class="mt-1 block w-full px-3.5 py-2 text-xs border border-slate-300 rounded-lg font-medium text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:border-transparent shadow-sm transition-all">
             <option value="">Select</option>
             <option value="sedentary" {{#if (eq profile.activityLevel 'sedentary')}}selected{{/if}}>Sedentary</option>
             <option value="light" {{#if (eq profile.activityLevel 'light')}}selected{{/if}}>Light Active</option>

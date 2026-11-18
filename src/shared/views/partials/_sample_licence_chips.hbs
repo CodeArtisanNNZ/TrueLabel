@@ -1,0 +1,24 @@
+{{#if sampleLicences.length}}
+  <div class="space-y-2 pt-2">
+    <div class="text-xs font-semibold text-slate-500">Sample registry records for instant testing:</div>
+    <div class="flex flex-wrap items-center gap-2">
+      {{#each sampleLicences}}
+        <a
+          href="/safety/licence/verify?licenceNumber={{urlEncode this.licenceNumber}}"
+          class="px-3 py-1.5 rounded-lg text-xs font-mono font-medium transition-colors border {{#if (eq this.status 'valid')}}bg-slate-50 hover:bg-emerald-50 hover:text-emerald-800 text-slate-700 border-slate-200{{else}}{{#if (eq this.status 'expired')}}bg-rose-50 hover:bg-rose-100 text-rose-800 border-rose-200{{else}}bg-amber-50 hover:bg-amber-100 text-amber-800 border-amber-200{{/if}}{{/if}}"
+        >
+          <span>{{this.licenceNumber}}</span>
+          {{#if (eq this.status 'valid')}}
+            <span class="text-emerald-700 font-semibold ml-1">Valid</span>
+          {{else}}
+            {{#if (eq this.status 'expired')}}
+              <span class="text-rose-700 font-semibold ml-1">Expired</span>
+            {{else}}
+              <span class="text-amber-700 font-semibold ml-1">{{this.status}}</span>
+            {{/if}}
+          {{/if}}
+        </a>
+      {{/each}}
+    </div>
+  </div>
+{{/if}}

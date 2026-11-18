@@ -1,0 +1,109 @@
+<!-- CSE470 Viva Evaluation Dock (Floating Bottom Bar) -->
+<aside id="viva-dock" class="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 max-w-full px-3">
+  
+  <!-- Expanded Pill -->
+  <div id="viva-dock-expanded" class="flex items-center gap-3 bg-slate-950/95 text-white backdrop-blur-md border border-slate-700/80 rounded-full px-4 py-2 shadow-[0_10px_35px_-5px_rgba(0,0,0,0.4)] transition-all">
+    
+    <!-- Persona Switcher Badge -->
+    <div class="flex items-center gap-1.5 pr-2 border-r border-slate-800">
+      <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+      <span class="text-[11px] font-mono font-bold tracking-tight text-slate-300 whitespace-nowrap">Persona Switcher</span>
+    </div>
+
+    <!-- Quick Persona Switcher -->
+    <div class="flex items-center gap-1 text-xs">
+      <span class="text-[10px] uppercase font-bold text-slate-400 mr-1 hidden sm:inline">Role:</span>
+      
+      <!-- Consumer -->
+      <a
+        href="/auth/switch-role/consumer"
+        title="Switch to Consumer Persona"
+        class="px-2.5 py-1 rounded-full text-[11px] font-bold transition-all {{#if (eq user.role 'consumer')}}bg-white text-slate-950 shadow-sm{{else}}text-slate-300 hover:text-white hover:bg-slate-800{{/if}}"
+      >
+        Consumer
+      </a>
+
+      <!-- Manufacturer -->
+      <a
+        href="/auth/switch-role/manufacturer"
+        title="Switch to Manufacturer Persona"
+        class="px-2.5 py-1 rounded-full text-[11px] font-bold transition-all {{#if (eq user.role 'manufacturer')}}bg-emerald-500 text-slate-950 shadow-sm{{else}}text-slate-300 hover:text-white hover:bg-slate-800{{/if}}"
+      >
+        Mfg
+      </a>
+
+      <!-- Inspector -->
+      <a
+        href="/auth/switch-role/inspector"
+        title="Switch to Inspector Persona"
+        class="px-2.5 py-1 rounded-full text-[11px] font-bold transition-all {{#if (eq user.role 'inspector')}}bg-amber-400 text-slate-950 shadow-sm{{else}}text-slate-300 hover:text-white hover:bg-slate-800{{/if}}"
+      >
+        Inspector
+      </a>
+
+      <!-- Admin -->
+      <a
+        href="/auth/switch-role/admin"
+        title="Switch to Administrator Persona"
+        class="px-2.5 py-1 rounded-full text-[11px] font-bold transition-all {{#if (eq user.role 'admin')}}bg-indigo-400 text-slate-950 shadow-sm{{else}}text-slate-300 hover:text-white hover:bg-slate-800{{/if}}"
+      >
+        Admin
+      </a>
+    </div>
+
+    <!-- Minimize Button -->
+    <button
+      id="viva-dock-minimize-btn"
+      type="button"
+      title="Minimize Viva Dock"
+      class="text-slate-400 hover:text-white p-1 rounded-full hover:bg-slate-800 transition-colors ml-1"
+    >
+      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg>
+    </button>
+  </div>
+
+  <!-- Minimized Bubble -->
+  <button
+    id="viva-dock-minimized"
+    type="button"
+    class="hidden items-center gap-1.5 bg-slate-950/95 text-white backdrop-blur-md border border-slate-700/80 rounded-full px-3 py-1.5 shadow-xl hover:bg-slate-900 transition-all text-xs font-mono font-bold"
+    title="Expand Viva Switcher"
+  >
+    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+    <span>Active Persona: {{#if user.role}}<span class="text-emerald-400 capitalize">{{user.role}}</span>{{else}}<span class="text-slate-400">Guest</span>{{/if}}</span>
+    <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"></path></svg>
+  </button>
+
+</aside>
+
+<script>
+  (function() {
+    const dockExpanded = document.getElementById('viva-dock-expanded');
+    const dockMinimized = document.getElementById('viva-dock-minimized');
+    const minimizeBtn = document.getElementById('viva-dock-minimize-btn');
+
+    // Check localStorage preference
+    const isMinimized = localStorage.getItem('viva_dock_minimized') === 'true';
+    if (isMinimized && dockExpanded && dockMinimized) {
+      dockExpanded.classList.add('hidden');
+      dockMinimized.classList.remove('hidden');
+      dockMinimized.classList.add('flex');
+    }
+
+    if (minimizeBtn && dockExpanded && dockMinimized) {
+      minimizeBtn.addEventListener('click', function() {
+        dockExpanded.classList.add('hidden');
+        dockMinimized.classList.remove('hidden');
+        dockMinimized.classList.add('flex');
+        localStorage.setItem('viva_dock_minimized', 'true');
+      });
+
+      dockMinimized.addEventListener('click', function() {
+        dockMinimized.classList.add('hidden');
+        dockMinimized.classList.remove('flex');
+        dockExpanded.classList.remove('hidden');
+        localStorage.setItem('viva_dock_minimized', 'false');
+      });
+    }
+  })();
+</script>

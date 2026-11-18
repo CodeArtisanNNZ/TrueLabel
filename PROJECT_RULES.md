@@ -19,6 +19,9 @@ When anyone (developer or AI agent) starts working on this project for the first
      ```bash
      npx skills add https://github.com/anthropics/skills --skill frontend-design
      ```
+3. **Mandatory Application of `frontend-design` on ALL Frontend Work**:
+   - Every frontend view, template, UI component, and redesign **MUST strictly follow the `frontend-design` skill** instructions (`.agents/skills/frontend-design/SKILL.md`).
+   - Building or modifying frontend views using generic AI defaults without activating and adhering to the `frontend-design` skill is strictly prohibited.
 
 ---
 
@@ -88,6 +91,27 @@ flowchart LR
 * **Prohibitions**:
   - **Zero business decisions**: Views must only inspect pre-calculated flags and values provided by the controller ViewModel.
   - **Zero data mutations or API calls to fetch core page data**: Everything required to render the view must be supplied by the controller.
+
+### 1.4. Mandatory Frontend Design Engineering Protocol (`frontend-design` Skill)
+All frontend development (Handlebars templates, CSS styling, UI components, layout structures, and visual hierarchies) **MUST strictly adhere to the `frontend-design` skill**:
+1. **Subject-Matter Grounding**:
+   - The visual identity of TrueLabel must reflect its authentic domain: **regulatory food safety dossiers, public health transparency, clinical nutritional science, and laboratory accreditation**.
+   - Distinctive role personas:
+     * **Inspector UI**: High data density, authoritative regulatory docket aesthetics, clear compliance status badges, audit timestamps, and distraction-free tabular verification views.
+     * **Manufacturer UI**: Industrial batch tracking, corporate accreditation status, regulatory filing records, and clean product registration workflows.
+     * **Consumer UI**: Legible health shield ergonomics, clear allergen visibility, calm color harmony, and immediate safety clarity.
+     * **Admin UI**: System governance telemetry, platform oversight, and directory integrity.
+2. **Elimination of Generic AI-Generated Design Defaults**:
+   - **NO uniform SaaS card grids**: Do not chop every screen into identical `border border-slate-200 rounded-lg` cards with identical soft gray shadows. Vary structural depth, margins, and borders according to content importance.
+   - **NO repetitive template chrome**: Avoid tracked-out ALL-CAPS eyebrow labels, strings joined by middle dots (`·`), `WORD — fragment` titles, and generic arrow appendages (`→` on buttons).
+   - **NO decorative gradient washes**: Colors must communicate semantic state (e.g., FDA/EU food safety tiers, certified vs. revoked status, genuine allergen alerts).
+3. **Typography & Layout Hierarchy**:
+   - Set deliberate typographic scales following *The Elements of Typographic Style*. Keep line lengths under 80 characters for body text.
+   - Use authentic layout models: authentic FDA/EU Nutrition Facts panel formatting, tabular regulatory records, and asymmetric split-pane layouts where appropriate.
+4. **Intentional Copywriting**:
+   - Use active voice, sentence case for headings and CTAs, plain language without corporate marketing fluff, and clear direction on error or empty states.
+5. **Two-Pass Execution**:
+   - Before coding new frontend views or redesigns, formulate a concise design plan (palette, typography, layout, role persona), evaluate it against generic AI defaults, and execute cleanly.
 
 ---
 

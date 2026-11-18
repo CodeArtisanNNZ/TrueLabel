@@ -7,16 +7,24 @@ import {
   Min,
   Max,
   IsIn,
+  ValidateIf,
 } from 'class-validator';
-import { Transform, Type } from 'class-transformer';
+import { Transform } from 'class-transformer';
 import { GenderType, ActivityLevel } from '../preference-profile.entity';
+
+// Helper to safely transform empty string form values to null
+const toNullableNumber = ({ value }: { value: any }) => {
+  if (value === '' || value === null || value === undefined) return null;
+  const num = Number(value);
+  return isNaN(num) ? value : num;
+};
 
 export class UpdatePreferenceProfileDto {
   @IsOptional()
   @Transform(({ value }) => {
     if (!value) return [];
-    if (Array.isArray(value)) return value;
-    return [value];
+    if (Array.isArray(value)) return value.map((v) => String(v).trim()).filter(Boolean);
+    return [String(value).trim()].filter(Boolean);
   })
   @IsArray()
   @IsString({ each: true })
@@ -25,8 +33,8 @@ export class UpdatePreferenceProfileDto {
   @IsOptional()
   @Transform(({ value }) => {
     if (!value) return [];
-    if (Array.isArray(value)) return value;
-    return [value];
+    if (Array.isArray(value)) return value.map((v) => String(v).trim()).filter(Boolean);
+    return [String(value).trim()].filter(Boolean);
   })
   @IsArray()
   @IsString({ each: true })
@@ -35,71 +43,93 @@ export class UpdatePreferenceProfileDto {
   @IsOptional()
   @Transform(({ value }) => {
     if (!value) return [];
-    if (Array.isArray(value)) return value.map((s: string) => s.trim()).filter(Boolean);
-    if (typeof value === 'string') {
-      return value.split(',').map((s) => s.trim()).filter(Boolean);
+    let items: string[] = [];
+    if (Array.isArray(value)) {
+      items = value.map((s: string) => String(s).trim()).filter(Boolean);
+    } else if (typeof value === 'string') {
+      items = value.split(',').map((s) => s.trim()).filter(Boolean);
     }
-    return [];
+    // Case-insensitive deduplication
+    const seen = new Set<string>();
+    const unique: string[] = [];
+    for (const item of items) {
+      const lower = item.toLowerCase();
+      if (!seen.has(lower)) {
+        seen.add(lower);
+        unique.push(item);
+      }
+    }
+    return unique;
   })
   @IsArray()
   @IsString({ each: true })
   dislikedIngredients?: string[];
 
   @IsOptional()
-  @Type(() => Number)
+  @Transform(toNullableNumber)
+  @ValidateIf((o, v) => v !== null && v !== undefined)
   @IsNumber()
   @Min(500)
   @Max(10000)
-  calorieGoal?: number;
+  calorieGoal?: number | null;
 
   @IsOptional()
-  @Type(() => Number)
+  @Transform(toNullableNumber)
+  @ValidateIf((o, v) => v !== null && v !== undefined)
   @IsNumber()
   @Min(0)
   @Max(500)
-  maxSugarPerServing?: number;
+  maxSugarPerServing?: number | null;
 
   @IsOptional()
-  @Type(() => Number)
+  @Transform(toNullableNumber)
+  @ValidateIf((o, v) => v !== null && v !== undefined)
   @IsNumber()
   @Min(0)
   @Max(10000)
-  maxSodiumPerServing?: number;
+  maxSodiumPerServing?: number | null;
 
   @IsOptional()
-  @Type(() => Number)
+  @Transform(toNullableNumber)
+  @ValidateIf((o, v) => v !== null && v !== undefined)
   @IsNumber()
   @Min(0)
   @Max(200)
-  minProteinPerServing?: number;
+  minProteinPerServing?: number | null;
 
   @IsOptional()
-  @Type(() => Number)
+  @Transform(toNullableNumber)
+  @ValidateIf((o, v) => v !== null && v !== undefined)
   @IsNumber()
   @Min(1)
   @Max(120)
-  age?: number;
+  age?: number | null;
 
   @IsOptional()
-  @IsIn(['male', 'female', 'other', ''])
-  gender?: GenderType;
+  @Transform(({ value }) => (value === '' || !value ? null : value))
+  @ValidateIf((o, v) => v !== null && v !== undefined)
+  @IsIn(['male', 'female', 'other'])
+  gender?: GenderType | null;
 
   @IsOptional()
-  @Type(() => Number)
+  @Transform(toNullableNumber)
+  @ValidateIf((o, v) => v !== null && v !== undefined)
   @IsNumber()
   @Min(50)
   @Max(250)
-  heightCm?: number;
+  heightCm?: number | null;
 
   @IsOptional()
-  @Type(() => Number)
+  @Transform(toNullableNumber)
+  @ValidateIf((o, v) => v !== null && v !== undefined)
   @IsNumber()
   @Min(20)
   @Max(300)
-  weightKg?: number;
+  weightKg?: number | null;
 
   @IsOptional()
-  @IsIn(['sedentary', 'light', 'moderate', 'active', 'very_active', ''])
-  activityLevel?: ActivityLevel;
+  @Transform(({ value }) => (value === '' || !value ? null : value))
+  @ValidateIf((o, v) => v !== null && v !== undefined)
+  @IsIn(['sedentary', 'light', 'moderate', 'active', 'very_active'])
+  activityLevel?: ActivityLevel | null;
 }
-

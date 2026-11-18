@@ -1,0 +1,39 @@
+{{#if (gt totalPages 1)}}
+  <nav aria-label="Pagination navigation" class="bg-white border border-slate-200 rounded-xl p-4 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-sm">
+    <div class="text-xs text-slate-500 font-medium">
+      Showing page <strong class="text-slate-900 font-bold">{{page}}</strong> of <strong class="text-slate-900 font-bold">{{totalPages}}</strong> ({{total}} {{#if itemName}}{{itemName}}{{else}}items{{/if}})
+    </div>
+
+    <div class="flex items-center gap-2">
+      {{#if (gt page 1)}}
+        <a
+          href="{{#if baseUrl}}{{baseUrl}}{{else}}?{{/if}}page={{subtract page 1}}{{#if query}}&q={{urlEncode query}}{{/if}}{{#if selectedCategory}}&category={{urlEncode selectedCategory}}{{/if}}{{#if selectedTag}}&tag={{urlEncode selectedTag}}{{/if}}{{#if minScore}}&minScore={{minScore}}{{/if}}{{#if (and currentFilter (ne currentFilter.status 'all'))}}&status={{currentFilter.status}}{{/if}}{{#if (and currentFilter.type (ne currentFilter.type 'all'))}}&type={{currentFilter.type}}{{/if}}{{#if currentSort}}&sort={{currentSort}}{{/if}}{{#if currentOrder}}&order={{currentOrder}}{{/if}}{{#if selectedRole}}&role={{selectedRole}}{{/if}}"
+          class="px-3.5 py-1.5 text-xs font-semibold rounded-lg border border-slate-300 text-slate-700 hover:bg-slate-50 transition-colors"
+        >
+          Previous
+        </a>
+      {{else}}
+        <span class="px-3.5 py-1.5 text-xs font-semibold rounded-lg border border-slate-200 text-slate-300 cursor-not-allowed">
+          Previous
+        </span>
+      {{/if}}
+
+      <span class="px-3 py-1.5 text-xs font-mono font-bold text-slate-700 bg-slate-100 rounded-lg">
+        {{page}} / {{totalPages}}
+      </span>
+
+      {{#if (lt page totalPages)}}
+        <a
+          href="{{#if baseUrl}}{{baseUrl}}{{else}}?{{/if}}page={{add page 1}}{{#if query}}&q={{urlEncode query}}{{/if}}{{#if selectedCategory}}&category={{urlEncode selectedCategory}}{{/if}}{{#if selectedTag}}&tag={{urlEncode selectedTag}}{{/if}}{{#if minScore}}&minScore={{minScore}}{{/if}}{{#if (and currentFilter (ne currentFilter.status 'all'))}}&status={{currentFilter.status}}{{/if}}{{#if (and currentFilter.type (ne currentFilter.type 'all'))}}&type={{currentFilter.type}}{{/if}}{{#if currentSort}}&sort={{currentSort}}{{/if}}{{#if currentOrder}}&order={{currentOrder}}{{/if}}{{#if selectedRole}}&role={{selectedRole}}{{/if}}"
+          class="px-3.5 py-1.5 text-xs font-semibold rounded-lg border border-slate-300 text-slate-700 hover:bg-slate-50 transition-colors"
+        >
+          Next
+        </a>
+      {{else}}
+        <span class="px-3.5 py-1.5 text-xs font-semibold rounded-lg border border-slate-200 text-slate-300 cursor-not-allowed">
+          Next
+        </span>
+      {{/if}}
+    </div>
+  </nav>
+{{/if}}

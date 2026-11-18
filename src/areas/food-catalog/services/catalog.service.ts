@@ -52,9 +52,13 @@ export class CatalogService {
     }
 
     if (dto.category && dto.category.trim()) {
-      queryBuilder.andWhere('LOWER(product.category) = :cat', {
-        cat: dto.category.trim().toLowerCase(),
-      });
+      const cat = `%${dto.category.trim().toLowerCase()}%`;
+      queryBuilder.andWhere('LOWER(product.category) LIKE :cat', { cat });
+    }
+
+    if (dto.tag && dto.tag.trim()) {
+      const tagLower = `%${dto.tag.trim().toLowerCase()}%`;
+      queryBuilder.andWhere('LOWER(product.dietaryTags) LIKE :tag', { tag: tagLower });
     }
 
     if (dto.minScore) {
@@ -67,17 +71,8 @@ export class CatalogService {
 
     const [items, total] = await queryBuilder.getManyAndCount();
 
-    // In-memory filter for dietaryTags if tag is specified
-    let filteredItems = items;
-    if (dto.tag && dto.tag.trim()) {
-      const tagLower = dto.tag.trim().toLowerCase();
-      filteredItems = items.filter((p) =>
-        p.dietaryTags?.some((t) => t.toLowerCase() === tagLower),
-      );
-    }
-
     return {
-      items: filteredItems,
+      items,
       total,
       page,
       totalPages: Math.ceil(total / limit) || 1,
@@ -218,7 +213,43 @@ export class CatalogService {
     if (dto.servingUnit) product.servingUnit = dto.servingUnit;
     if (dto.dietaryTags) product.dietaryTags = dto.dietaryTags;
 
-    return this.productRepo.save(product);
+    const saved = await this.productRepo.save(product);
+
+    if (dto.ingredients) {
+      await this.ingredientRepo.delete({ product: { id } });
+      const entities = dto.ingredients.map((i) =>
+        this.ingredientRepo.create({
+          ...i,
+          name: i.name.trim(),
+          product: saved,
+        }),
+      );
+      saved.ingredients = await this.ingredientRepo.save(entities);
+    }
+
+    if (dto.nutritionFacts) {
+      await this.nutritionRepo.delete({ product: { id } });
+      const entities = dto.nutritionFacts.map((n) =>
+        this.nutritionRepo.create({
+          ...n,
+          product: saved,
+        }),
+      );
+      saved.nutritionFacts = await this.nutritionRepo.save(entities);
+    }
+
+    return saved;
+  }
+
+  /**
+   * Find all products registered by a specific manufacturer (Feature F01 & F06 Dashboard)
+   */
+  async findByManufacturer(manufacturerId: number): Promise<FoodProduct[]> {
+    return this.productRepo.find({
+      where: { manufacturerId },
+      relations: ['ingredients', 'nutritionFacts'],
+      order: { createdAt: 'DESC' },
+    });
   }
 
   /**
@@ -255,5 +286,218 @@ export class CatalogService {
       dietaryTags: ['Vegan', 'Vegetarian', 'Gluten-Free', 'Halal', 'Kosher', 'Low-Sugar', 'Organic'],
     };
   }
+
+  /**
+   * Classify Food Quality Score (0-100) into statutory transparency tiers.
+   * - Tier 1 (>= 80): High Quality / Clean Formulation (Emerald)
+   * - Tier 2 (60-79): Moderate Quality / Standard Formulation (Amber)
+   * - Tier 3 (< 60): Low Quality / Elevated Processing & Additives (Rose / Crimson)
+   */
+  getQualityScoreTier(score: number): QualityScoreTierInfo {
+    const s = Math.round(Number(score) || 0);
+    if (s >= 80) {
+      return {
+        score: s,
+        tierNumber: 1,
+        tierLabel: 'Tier 1 · Superior Transparency',
+        badgeLabel: 'Verified High Standard',
+        badgeClass: 'score-badge-high',
+        textColorClass: 'text-emerald-700 dark:text-emerald-400',
+        tierColorClass: 'text-emerald-800 dark:text-emerald-300',
+        badgeBgClass:
+          'bg-emerald-100 text-emerald-800 border border-emerald-300 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800',
+        isHigh: true,
+        isMid: false,
+        isLow: false,
+      };
+    } else if (s >= 60) {
+      return {
+        score: s,
+        tierNumber: 2,
+        tierLabel: 'Tier 2 · Moderate Quality',
+        badgeLabel: 'Moderate Formulation',
+        badgeClass: 'score-badge-mid',
+        textColorClass: 'text-amber-700 dark:text-amber-400',
+        tierColorClass: 'text-amber-800 dark:text-amber-300',
+        badgeBgClass:
+          'bg-amber-100 text-amber-800 border border-amber-300 dark:bg-amber-950/60 dark:text-amber-300 dark:border-amber-800',
+        isHigh: false,
+        isMid: true,
+        isLow: false,
+      };
+    } else {
+      return {
+        score: s,
+        tierNumber: 3,
+        tierLabel: 'Tier 3 · Elevated Processing & Additives',
+        badgeLabel: 'Quality Caution Flagged',
+        badgeClass: 'score-badge-low',
+        textColorClass: 'text-rose-700 dark:text-rose-400',
+        tierColorClass: 'text-rose-800 dark:text-rose-400',
+        badgeBgClass:
+          'bg-rose-100 text-rose-800 border border-rose-300 dark:bg-rose-950/60 dark:text-rose-300 dark:border-rose-800',
+        isHigh: false,
+        isMid: false,
+        isLow: true,
+      };
+    }
+  }
+
+  /**
+   * Build complete dynamic specimen analysis for the homepage official dossier showcase.
+   */
+  buildDossierSpecimen(product: FoodProduct, licenceNumber?: string): DossierSpecimen | null {
+    if (!product) return null;
+
+    const tierInfo = this.getQualityScoreTier(product.qualityScore);
+
+    // 1. Synthetic Additives
+    const additives = (product.ingredients || []).filter(
+      (i) => Boolean(i.additiveCode) || i.hazardLevel === 'caution' || i.hazardLevel === 'warning',
+    );
+    const additiveCodes = additives
+      .map((a) => a.additiveCode || a.name)
+      .filter(Boolean)
+      .join(', ');
+
+    const additivesSummary =
+      additives.length === 0
+        ? {
+            label: '0 Detected (Clean Label)',
+            count: 0,
+            status: 'safe' as const,
+            badgeClass:
+              'text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800',
+          }
+        : {
+            label: `${additives.length} Detected (${additiveCodes})`,
+            count: additives.length,
+            status: 'hazard' as const,
+            badgeClass:
+              'text-rose-700 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-800',
+          };
+
+    // 2. Allergen Declarations
+    const allergens = (product.ingredients || []).filter((i) => i.isAllergen);
+    const allergenNames = allergens
+      .map((a) => a.allergenType || a.name)
+      .filter(Boolean)
+      .join(', ');
+
+    const allergensSummary =
+      allergens.length === 0
+        ? {
+            label: '0 Declared (Clean Formulation)',
+            count: 0,
+            status: 'safe' as const,
+            badgeClass:
+              'text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800',
+          }
+        : {
+            label: `${allergenNames} Declared`,
+            count: allergens.length,
+            status: 'caution' as const,
+            badgeClass:
+              'text-amber-800 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/60 border border-amber-200 dark:border-amber-800',
+          };
+
+    // 3. Sugar Saturation
+    const sugarFact = (product.nutritionFacts || []).find((n) =>
+      /sugar/i.test(n.nutrient),
+    );
+    let sugarSummary: {
+      label: string;
+      amount: number;
+      status: 'safe' | 'caution' | 'hazard' | 'neutral';
+      colorClass: string;
+    } = {
+      label: 'Not Declared',
+      amount: 0,
+      status: 'neutral',
+      colorClass: 'text-slate-500 font-mono',
+    };
+
+    if (sugarFact) {
+      const amount = Number(sugarFact.amountPer100g) || 0;
+      const unit = product.servingUnit || 'g';
+      if (amount <= 5) {
+        sugarSummary = {
+          label: `${amount}g / 100${unit} (Low Density)`,
+          amount,
+          status: 'safe',
+          colorClass: 'text-emerald-700 dark:text-emerald-400 font-mono font-bold',
+        };
+      } else if (amount <= 10) {
+        sugarSummary = {
+          label: `${amount}g / 100${unit} (Moderate Density)`,
+          amount,
+          status: 'caution',
+          colorClass: 'text-amber-700 dark:text-amber-400 font-mono font-bold',
+        };
+      } else {
+        sugarSummary = {
+          label: `${amount}g / 100${unit} (High Density / Flagged)`,
+          amount,
+          status: 'hazard',
+          colorClass: 'text-rose-700 dark:text-rose-400 font-mono font-bold',
+        };
+      }
+    }
+
+    // 4. National Licence
+    const nationalLicence = licenceNumber
+      ? `${licenceNumber} (Valid)`
+      : 'BSTI-FOOD-2024-001 (Valid)';
+
+    return {
+      product,
+      tierInfo,
+      additivesSummary,
+      allergensSummary,
+      sugarSummary,
+      nationalLicence,
+      ingredients: product.ingredients || [],
+    };
+  }
 }
+
+export interface QualityScoreTierInfo {
+  score: number;
+  tierNumber: 1 | 2 | 3;
+  tierLabel: string;
+  badgeLabel: string;
+  badgeClass: string;
+  textColorClass: string;
+  tierColorClass: string;
+  badgeBgClass: string;
+  isHigh: boolean;
+  isMid: boolean;
+  isLow: boolean;
+}
+
+export interface DossierSpecimen {
+  product: FoodProduct;
+  tierInfo: QualityScoreTierInfo;
+  additivesSummary: {
+    label: string;
+    count: number;
+    status: 'safe' | 'caution' | 'hazard';
+    badgeClass: string;
+  };
+  allergensSummary: {
+    label: string;
+    count: number;
+    status: 'safe' | 'caution';
+    badgeClass: string;
+  };
+  sugarSummary: {
+    label: string;
+    amount: number;
+    status: 'safe' | 'caution' | 'hazard' | 'neutral';
+    colorClass: string;
+  };
+  nationalLicence: string;
+  ingredients: Ingredient[];
+}
+
 

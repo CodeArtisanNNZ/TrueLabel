@@ -17,8 +17,8 @@
     <a href="/catalog" class="py-2.5 px-4 bg-slate-900 text-white font-bold text-xs rounded hover:bg-slate-800">
       Search Other Foods
     </a>
-    {{#if (eq user.role "manufacturer")}}
-      <a href="/catalog/manage/create" class="py-2.5 px-4 border border-emerald-600 text-emerald-800 font-bold text-xs rounded hover:bg-emerald-50">
+    {{#if (or (eq user.role "manufacturer") (eq user.role "admin"))}}
+      <a href="/catalog/manage/create?barcode={{urlEncode barcode}}" class="py-2.5 px-4 border border-emerald-600 text-emerald-800 font-bold text-xs rounded hover:bg-emerald-50">
         Register Barcode {{barcode}} Now
       </a>
     {{/if}}

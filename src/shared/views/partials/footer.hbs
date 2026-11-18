@@ -1,19 +1,113 @@
-<footer class="bg-white border-t border-slate-200 mt-auto py-8">
-  <div class="container mx-auto px-4 max-w-7xl">
-    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-6 border-b border-slate-100">
-      <div>
-        <div class="font-bold text-slate-900 text-sm">TrueLabel — Food Quality, Safety & Diet Platform</div>
-        <div class="text-xs text-slate-500 mt-0.5">CSE470 Group 7 Project | Strict MVC Architecture with Areas</div>
+<footer class="bg-white border-t border-slate-200 mt-auto pt-10 pb-8 text-slate-700">
+  <div class="container mx-auto px-4 max-w-7xl space-y-8">
+    
+    <!-- Top Row: Brand & Sitemap Columns -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-8 pb-8 border-b border-slate-100">
+      
+      <!-- Brand & Mission -->
+      <div class="space-y-3 md:col-span-1">
+        <a href="/" class="flex items-center gap-2">
+          <span class="w-7 h-7 rounded-lg bg-emerald-700 text-white font-black text-sm flex items-center justify-center font-mono">T</span>
+          <span class="font-extrabold text-slate-900 tracking-tight text-base">TrueLabel</span>
+        </a>
+        <p class="text-xs text-slate-500 leading-relaxed">
+          National food transparency, forensic ingredient analysis, explainable quality scoring, and regulatory accreditation verification platform.
+        </p>
+        <div class="flex items-center gap-2 pt-1">
+          <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-emerald-100 text-emerald-800 border border-emerald-200">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse"></span>
+            Platform Live
+          </span>
+          <span class="text-[11px] font-mono text-slate-400">Release v1.0</span>
+        </div>
       </div>
-      <div class="text-xs text-slate-400">
-        Sprint 1 Release · High Business Value Delivery
+
+      <!-- Column 1: Food Discovery -->
+      <div class="space-y-2.5">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-900">Food Discovery</div>
+        <ul class="space-y-1.5 text-xs">
+          <li>
+            <a href="/" class="hover:text-emerald-700 transition-colors">Home Landing</a>
+          </li>
+          <li>
+            <a href="/catalog" class="hover:text-emerald-700 transition-colors">Food Catalog Directory</a>
+          </li>
+          <li>
+            <a href="/catalog?tag=Vegan" class="hover:text-emerald-700 transition-colors">Vegan Packaged Foods</a>
+          </li>
+          <li>
+            <a href="/catalog?tag=Gluten-Free" class="hover:text-emerald-700 transition-colors">Gluten-Free Verification</a>
+          </li>
+          <li>
+            <a href="/catalog?category=Dairy%20%26%20Plant%20Milks" class="hover:text-emerald-700 transition-colors">Dairy & Plant Milks</a>
+          </li>
+        </ul>
       </div>
+
+      <!-- Column 2: Safety & Accreditations -->
+      <div class="space-y-2.5">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-900">Safety & Standards</div>
+        <ul class="space-y-1.5 text-xs">
+          <li>
+            <a href="/safety/documents" class="hover:text-emerald-700 transition-colors">Verified Accreditations</a>
+          </li>
+          <li>
+            <a href="/safety/licence/verify" class="hover:text-emerald-700 transition-colors">Verify Manufacturer Licence</a>
+          </li>
+          <li>
+            <a href="/safety/documents/upload" class="hover:text-emerald-700 transition-colors">Submit Regulatory Cert</a>
+          </li>
+          <li>
+            <a href="/safety/documents?status=pending" class="hover:text-amber-800 transition-colors">Inspector Audit Queue</a>
+          </li>
+          <li>
+            <a href="/about" class="hover:text-emerald-700 transition-colors">About Our Standards</a>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Column 3: Legal & Public Policies -->
+      <div class="space-y-2.5">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-900">Legal & Governance</div>
+        <ul class="space-y-1.5 text-xs">
+          <li>
+            <a href="/terms" class="hover:text-emerald-700 transition-colors">Terms of Service</a>
+          </li>
+          <li>
+            <a href="/privacy" class="hover:text-emerald-700 transition-colors">Privacy & Health Data Policy</a>
+          </li>
+          <li>
+            <a href="/cache-policy" class="hover:text-emerald-700 transition-colors">Cache, Cookies & Storage</a>
+          </li>
+          <li>
+            <a href="/personal/profile" class="hover:text-emerald-700 transition-colors">My Dietary & Allergen Profile</a>
+          </li>
+          <li>
+            <a href="/contact" class="hover:text-emerald-700 transition-colors">Contact & Regulatory Desk</a>
+          </li>
+        </ul>
+      </div>
+
     </div>
 
     <!-- Official Non-Functional Requirement Disclaimer (Mandated by Project Proposal) -->
-    <div class="mt-4 p-3 rounded bg-slate-50 border border-slate-200 text-slate-500 text-xs leading-relaxed">
-      <strong class="text-slate-700 font-semibold">Important Food Safety & Health Notice:</strong>
-      TrueLabel scores, ingredient analyses, and dietary indicators are informational tools derived from packaged labels and rule calculations. They do not constitute official food-safety advice, medical diagnosis, or laboratory testing. Individuals managing severe allergies or clinical conditions should always verify physical packaging and consult qualified healthcare professionals.
+    <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 text-slate-500 text-xs leading-relaxed space-y-1">
+      <div class="font-bold text-slate-800">Important Food Safety & Health Notice:</div>
+      <p>
+        TrueLabel scores, ingredient analyses, and dietary indicators are informational tools derived from packaged
+        labels and rule calculations. They do not constitute official food-safety advice, medical diagnosis, or
+        laboratory testing. Individuals managing severe allergies or clinical conditions should always verify physical
+        packaging and consult qualified healthcare professionals.
+      </p>
     </div>
+
+    <!-- Bottom Copyright & Regulatory Architecture Bar -->
+    <div class="flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] text-slate-400">
+      <div>&copy; 2026 TrueLabel Platform · National Food Quality, Safety & Diet Intelligence Architecture.</div>
+      <div class="text-slate-400 font-mono">
+        BSTI · BFSA · FDA Accreditation Standards
+      </div>
+    </div>
+
   </div>
 </footer>

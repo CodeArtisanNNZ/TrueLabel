@@ -6,11 +6,13 @@ import { NutritionFact } from './models/nutrition-fact.entity';
 import { CatalogService } from './services/catalog.service';
 import { FoodCatalogController } from './controllers/food-catalog.controller';
 import { PersonalFoodModule } from '../personal-food/personal-food.module';
+import { FoodSafetyModule } from '../food-safety/food-safety.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([FoodProduct, Ingredient, NutritionFact]),
     PersonalFoodModule,
+    FoodSafetyModule,
   ],
   controllers: [FoodCatalogController],
   providers: [CatalogService],

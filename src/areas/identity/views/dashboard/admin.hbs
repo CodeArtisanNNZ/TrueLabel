@@ -1,0 +1,586 @@
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+  <!-- Header: Platform Command Center -->
+  <div class="bg-white border border-slate-200 rounded-xl p-6 sm:p-8 flex flex-col md:flex-row md:items-center justify-between gap-6 shadow-sm">
+    <div class="space-y-1">
+      <div class="flex items-center gap-2">
+        <span class="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-slate-900 text-white">
+          System governance
+        </span>
+        <span class="text-xs text-slate-500 font-mono">Root control</span>
+      </div>
+      <h1 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">Platform command center</h1>
+      <p class="text-sm text-slate-500 max-w-2xl">
+        System-wide oversight: user identity administration, role-based access control, catalog records, and regulatory audit integrity.
+      </p>
+    </div>
+    
+    <div class="flex flex-wrap items-center gap-2.5">
+      <button
+        type="button"
+        onclick="openAddUserModal()"
+        class="px-4 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-xs font-semibold transition-colors shadow-sm inline-flex items-center gap-1.5"
+      >
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+        Add new user
+      </button>
+      <a
+        href="/catalog/manage/create"
+        class="px-4 py-2.5 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 rounded-lg text-xs font-semibold transition-colors"
+      >
+        Add food product
+      </a>
+      <a
+        href="/safety/documents"
+        class="px-4 py-2.5 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 rounded-lg text-xs font-semibold transition-colors"
+      >
+        Safety registry
+      </a>
+    </div>
+  </div>
+
+  <!-- Connected Metric Strip -->
+  <div class="grid grid-cols-2 md:grid-cols-4 bg-white border border-slate-200 rounded-xl divide-y md:divide-y-0 md:divide-x divide-slate-100 overflow-hidden shadow-sm">
+    <div class="p-5">
+      <span class="text-xs font-medium text-slate-500 block">Total registered accounts</span>
+      <div class="text-2xl sm:text-3xl font-black text-slate-900 font-mono mt-1">{{totalUsers}}</div>
+      <span class="text-[11px] text-slate-400 block mt-0.5">
+        Across all system roles
+      </span>
+    </div>
+    <div class="p-5">
+      <span class="text-xs font-medium text-slate-500 block">Platform user types</span>
+      <div class="text-2xl sm:text-3xl font-black text-indigo-700 font-mono mt-1">{{userTypesCount}}</div>
+      <span class="text-[11px] text-slate-400 block mt-0.5">
+        Distinct governance roles
+      </span>
+    </div>
+    <div class="p-5">
+      <span class="text-xs font-medium text-slate-500 block">Regulatory & admin staff</span>
+      <div class="text-2xl sm:text-3xl font-black text-amber-800 font-mono mt-1">{{add roleBreakdown.inspector roleBreakdown.admin}}</div>
+      <span class="text-[11px] text-slate-400 block mt-0.5">
+        {{roleBreakdown.inspector}} inspectors, {{roleBreakdown.admin}} administrators
+      </span>
+    </div>
+    <div class="p-5">
+      <span class="text-xs font-medium text-slate-500 block">Catalog formulations</span>
+      <div class="text-2xl sm:text-3xl font-black text-emerald-800 font-mono mt-1">{{totalProducts}}</div>
+      <span class="text-[11px] text-slate-400 block mt-0.5">Active packaged foods</span>
+    </div>
+  </div>
+
+  <!-- User Types Overview Section (4 Distinct Identity Roles) -->
+  <div class="space-y-3">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+      <div>
+        <h2 class="text-base font-bold text-slate-900">Platform user types and role distribution</h2>
+        <p class="text-xs text-slate-500">TrueLabel categorizes users into 4 identity tiers with dedicated authorization scopes</p>
+      </div>
+      <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-slate-100 border border-slate-200 text-xs font-mono font-semibold text-slate-700 self-start sm:self-auto">
+        <span class="w-2 h-2 rounded-full bg-emerald-600"></span>
+        {{userTypesCount}} user types active
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      {{#each userTypes}}
+        <div class="bg-white border border-slate-200 rounded-xl p-5 flex flex-col justify-between shadow-sm hover:border-slate-300 transition-colors">
+          <div>
+            <div class="flex items-center justify-between mb-2.5">
+              <span class="inline-block px-2.5 py-0.5 rounded text-xs font-semibold {{this.badgeClass}}">
+                {{this.label}}
+              </span>
+              <span class="text-xl font-black font-mono text-slate-900">{{this.count}}</span>
+            </div>
+            <p class="text-xs text-slate-600 leading-relaxed">{{this.description}}</p>
+          </div>
+          <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-[11px]">
+            <span class="text-slate-400 font-mono">role: <strong class="text-slate-700">{{this.role}}</strong></span>
+            <a
+              href="/dashboard/admin?role={{this.role}}"
+              class="font-semibold text-slate-900 hover:text-indigo-600 transition-colors inline-flex items-center gap-1"
+            >
+              Filter list &rarr;
+            </a>
+          </div>
+        </div>
+      {{/each}}
+    </div>
+  </div>
+
+  <!-- Registered Users Directory Table -->
+  <div class="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+    <!-- Header with Action -->
+    <div class="p-6 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div>
+        <h2 class="text-base font-bold text-slate-900">User accounts and permissions directory</h2>
+        <p class="text-xs text-slate-500 mt-0.5">Manage, modify credentials, assign roles, or delete user identities</p>
+      </div>
+      <div class="flex items-center gap-3">
+        <span class="text-xs font-mono font-semibold text-slate-600 bg-slate-100 px-3 py-1.5 rounded-md">
+          {{total}} matching of {{totalUsers}} accounts
+        </span>
+        <button
+          type="button"
+          onclick="openAddUserModal()"
+          class="px-3.5 py-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-xs font-semibold transition-colors inline-flex items-center gap-1.5"
+        >
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+          Add user
+        </button>
+      </div>
+    </div>
+
+    <!-- Search, Filter & Sort Toolbar -->
+    <form method="GET" action="/dashboard/admin" class="bg-slate-50 border-b border-slate-200 p-4 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
+      <!-- Search Input -->
+      <div class="relative flex-1 max-w-md">
+        <input
+          type="text"
+          name="q"
+          value="{{query}}"
+          placeholder="Search accounts by name or email..."
+          class="w-full text-xs rounded-lg border border-slate-300 pl-8 pr-3 py-2 bg-white text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900"
+        />
+        <svg class="w-4 h-4 text-slate-400 absolute left-2.5 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-2.5">
+        <!-- Role Filter -->
+        <select
+          name="role"
+          onchange="this.form.submit()"
+          aria-label="Filter by role"
+          class="text-xs rounded-lg border border-slate-300 px-3 py-2 bg-white font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-900"
+        >
+          <option value="all" {{#if (eq selectedRole 'all')}}selected{{/if}}>All Roles ({{totalUsers}})</option>
+          <option value="consumer" {{#if (eq selectedRole 'consumer')}}selected{{/if}}>Consumers ({{roleBreakdown.consumer}})</option>
+          <option value="manufacturer" {{#if (eq selectedRole 'manufacturer')}}selected{{/if}}>Manufacturers ({{roleBreakdown.manufacturer}})</option>
+          <option value="inspector" {{#if (eq selectedRole 'inspector')}}selected{{/if}}>Inspectors ({{roleBreakdown.inspector}})</option>
+          <option value="admin" {{#if (eq selectedRole 'admin')}}selected{{/if}}>Admins ({{roleBreakdown.admin}})</option>
+        </select>
+
+        <!-- Sort By Field -->
+        <select
+          name="sort"
+          onchange="this.form.submit()"
+          aria-label="Sort by field"
+          class="text-xs rounded-lg border border-slate-300 px-3 py-2 bg-white font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-900"
+        >
+          <option value="createdAt" {{#if (eq currentSort 'createdAt')}}selected{{/if}}>Sort: Registration Date</option>
+          <option value="name" {{#if (eq currentSort 'name')}}selected{{/if}}>Sort: Name</option>
+          <option value="email" {{#if (eq currentSort 'email')}}selected{{/if}}>Sort: Email</option>
+          <option value="role" {{#if (eq currentSort 'role')}}selected{{/if}}>Sort: Role</option>
+          <option value="id" {{#if (eq currentSort 'id')}}selected{{/if}}>Sort: User ID</option>
+        </select>
+
+        <!-- Sort Direction -->
+        <select
+          name="order"
+          onchange="this.form.submit()"
+          aria-label="Sort direction"
+          class="text-xs rounded-lg border border-slate-300 px-3 py-2 bg-white font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-900"
+        >
+          <option value="DESC" {{#if (eq currentOrder 'DESC')}}selected{{/if}}>Descending (Z-A / Newest)</option>
+          <option value="ASC" {{#if (eq currentOrder 'ASC')}}selected{{/if}}>Ascending (A-Z / Oldest)</option>
+        </select>
+
+        <!-- Submit Button -->
+        <button
+          type="submit"
+          class="px-3.5 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-xs font-semibold transition-colors"
+        >
+          Apply
+        </button>
+
+        {{#if (or query (ne selectedRole 'all'))}}
+          <a
+            href="/dashboard/admin"
+            class="px-2.5 py-2 text-xs font-semibold text-slate-600 hover:text-slate-900 underline"
+          >
+            Clear
+          </a>
+        {{/if}}
+      </div>
+    </form>
+
+    <!-- Table of Users -->
+    <div class="overflow-x-auto">
+      <table class="w-full text-left text-xs">
+        <thead class="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold text-[11px]">
+          <tr>
+            <th class="px-6 py-3.5">User ID</th>
+            <th class="px-6 py-3.5">Full name or company</th>
+            <th class="px-6 py-3.5">Email address</th>
+            <th class="px-6 py-3.5">Role</th>
+            <th class="px-6 py-3.5">Status</th>
+            <th class="px-6 py-3.5">Registration date</th>
+            <th class="px-6 py-3.5 text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100 font-normal">
+          {{#each users}}
+            <tr class="hover:bg-slate-50/60 transition-colors">
+              <td class="px-6 py-4 font-mono font-semibold text-slate-500">
+                #{{this.id}}
+              </td>
+              <td class="px-6 py-4 font-bold text-slate-900">
+                {{this.name}}
+              </td>
+              <td class="px-6 py-4 font-mono text-slate-600">
+                {{this.email}}
+              </td>
+              <td class="px-6 py-4">
+                <span class="inline-block px-2.5 py-0.5 rounded text-[11px] font-semibold {{#if (eq this.role 'consumer')}}bg-blue-50 text-blue-800 border border-blue-200{{else}}{{#if (eq this.role 'manufacturer')}}bg-emerald-50 text-emerald-800 border border-emerald-200{{else}}{{#if (eq this.role 'inspector')}}bg-amber-50 text-amber-800 border border-amber-200{{else}}bg-slate-900 text-white{{/if}}{{/if}}{{/if}}">
+                  {{this.role}}
+                </span>
+              </td>
+              <!-- Fixed & Redesigned Status Column -->
+              <td class="px-6 py-4">
+                {{#if (eq this.status 'active')}}
+                  <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
+                    Active
+                  </span>
+                {{else}}
+                  <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-800 border border-amber-200">
+                    <span class="w-1.5 h-1.5 rounded-full bg-amber-600"></span>
+                    Unverified
+                  </span>
+                {{/if}}
+              </td>
+              <td class="px-6 py-4 font-mono text-slate-500">
+                {{this.formattedDate}}
+              </td>
+              <td class="px-6 py-4 text-right">
+                <div class="flex items-center justify-end gap-2">
+                  <button
+                    type="button"
+                    onclick="openEditUserModal(this)"
+                    data-id="{{this.id}}"
+                    data-name="{{this.name}}"
+                    data-email="{{this.email}}"
+                    data-role="{{this.role}}"
+                    data-verified="{{#if this.isVerified}}true{{else}}false{{/if}}"
+                    class="text-xs font-semibold text-slate-700 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 px-2.5 py-1 rounded-md transition-colors"
+                  >
+                    Edit
+                  </button>
+
+                  {{#if (ne this.id ../user.id)}}
+                    <form
+                      method="POST"
+                      action="/dashboard/admin/users/{{this.id}}/delete"
+                      onsubmit="return confirm('Are you sure you want to permanently delete user account #{{this.id}} ({{this.name}})? This action cannot be undone.');"
+                      class="inline"
+                    >
+                      <input type="hidden" name="_csrf" value="{{../csrfToken}}">
+                      <button
+                        type="submit"
+                        class="text-xs font-semibold text-rose-600 hover:text-rose-800 bg-rose-50 hover:bg-rose-100 border border-rose-200 px-2.5 py-1 rounded-md transition-colors"
+                      >
+                        Delete
+                      </button>
+                    </form>
+                  {{else}}
+                    <span class="text-[11px] font-medium text-slate-400 bg-slate-50 px-2 py-0.5 rounded border border-slate-200" title="Your active logged-in administrative session">
+                      You
+                    </span>
+                  {{/if}}
+                </div>
+              </td>
+            </tr>
+          {{/each}}
+
+          {{#if (eq users.length 0)}}
+            <tr>
+              <td colspan="7" class="px-6 py-12 text-center text-slate-500">
+                <div class="max-w-sm mx-auto space-y-2">
+                  <p class="text-sm font-semibold text-slate-700">No user accounts found</p>
+                  <p class="text-xs text-slate-400">No accounts match your search query or role filter.</p>
+                  <a href="/dashboard/admin" class="inline-block mt-2 text-xs font-semibold text-slate-900 underline">
+                    Clear all filters
+                  </a>
+                </div>
+              </td>
+            </tr>
+          {{/if}}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination Controls -->
+    <div class="p-4 border-t border-slate-200 bg-slate-50/50">
+      {{> _pagination baseUrl="/dashboard/admin?" itemName="registered accounts"}}
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Add New User Account -->
+<div
+  id="addUserModal"
+  class="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 hidden"
+  onclick="if (event.target === this) closeAddUserModal()"
+>
+  <div class="bg-white rounded-xl shadow-2xl max-w-lg w-full border border-slate-200 overflow-hidden transform transition-all">
+    <div class="p-6 border-b border-slate-100 flex items-center justify-between">
+      <div>
+        <h3 class="text-lg font-bold text-slate-900">Create new user account</h3>
+        <p class="text-xs text-slate-500 mt-0.5">Provision a new identity with assigned system role</p>
+      </div>
+      <button
+        type="button"
+        onclick="closeAddUserModal()"
+        class="text-slate-400 hover:text-slate-600 p-1 rounded-lg"
+      >
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+
+    <form method="POST" action="/dashboard/admin/users/create" class="p-6 space-y-4">
+      <input type="hidden" name="_csrf" value="{{csrfToken}}">
+
+      <div>
+        <label for="addUserName" class="block text-xs font-semibold text-slate-700 mb-1">Full name or organization</label>
+        <input
+          type="text"
+          id="addUserName"
+          name="name"
+          required
+          placeholder="e.g. Dr. Aris Thorne or BioHarvest Foods"
+          class="w-full text-xs rounded-lg border border-slate-300 px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900"
+        />
+      </div>
+
+      <div>
+        <label for="addUserEmail" class="block text-xs font-semibold text-slate-700 mb-1">Email address</label>
+        <input
+          type="email"
+          id="addUserEmail"
+          name="email"
+          required
+          placeholder="e.g. user@organization.com"
+          class="w-full text-xs rounded-lg border border-slate-300 px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900"
+        />
+      </div>
+
+      <div>
+        <label for="addUserRole" class="block text-xs font-semibold text-slate-700 mb-1">System user type / role</label>
+        <select
+          id="addUserRole"
+          name="role"
+          required
+          class="w-full text-xs rounded-lg border border-slate-300 px-3 py-2 bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900"
+        >
+          <option value="consumer">Consumer (Nutrition preferences & product scanning)</option>
+          <option value="manufacturer">Manufacturer (Food catalog management & safety filings)</option>
+          <option value="inspector">Safety Inspector (Accreditation audits & regulatory queue)</option>
+          <option value="admin">Platform Administrator (Root system governance)</option>
+        </select>
+      </div>
+
+      <div>
+        <label for="addUserPassword" class="block text-xs font-semibold text-slate-700 mb-1">Initial password</label>
+        <input
+          type="password"
+          id="addUserPassword"
+          name="password"
+          required
+          minlength="6"
+          placeholder="Minimum 6 characters"
+          class="w-full text-xs rounded-lg border border-slate-300 px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900"
+        />
+      </div>
+
+      <div class="pt-2">
+        <label class="flex items-center gap-2 cursor-pointer">
+          <input
+            type="checkbox"
+            name="isVerified"
+            checked
+            class="rounded border-slate-300 text-slate-900 focus:ring-slate-900"
+          />
+          <span class="text-xs font-medium text-slate-700">Mark account as verified and active immediately</span>
+        </label>
+      </div>
+
+      <div class="pt-4 border-t border-slate-100 flex items-center justify-end gap-3">
+        <button
+          type="button"
+          onclick="closeAddUserModal()"
+          class="px-4 py-2 border border-slate-300 hover:bg-slate-50 text-slate-700 rounded-lg text-xs font-semibold transition-colors"
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          class="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-xs font-semibold transition-colors shadow-sm"
+        >
+          Create user account
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal: Edit Existing User Account -->
+<div
+  id="editUserModal"
+  class="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 hidden"
+  onclick="if (event.target === this) closeEditUserModal()"
+>
+  <div class="bg-white rounded-xl shadow-2xl max-w-lg w-full border border-slate-200 overflow-hidden transform transition-all">
+    <div class="p-6 border-b border-slate-100 flex items-center justify-between">
+      <div>
+        <h3 class="text-lg font-bold text-slate-900">Modify user account <span id="editUserIdDisplay" class="font-mono text-slate-500"></span></h3>
+        <p class="text-xs text-slate-500 mt-0.5">Update credentials, role assignments, or active verification status</p>
+      </div>
+      <button
+        type="button"
+        onclick="closeEditUserModal()"
+        class="text-slate-400 hover:text-slate-600 p-1 rounded-lg"
+      >
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+
+    <form id="editUserForm" method="POST" action="/dashboard/admin/users/0/update" class="p-6 space-y-4">
+      <input type="hidden" name="_csrf" value="{{csrfToken}}">
+      <input type="hidden" name="_hasVerifiedField" value="true">
+
+      <div>
+        <label for="editUserName" class="block text-xs font-semibold text-slate-700 mb-1">Full name or organization</label>
+        <input
+          type="text"
+          id="editUserName"
+          name="name"
+          required
+          class="w-full text-xs rounded-lg border border-slate-300 px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900"
+        />
+      </div>
+
+      <div>
+        <label for="editUserEmail" class="block text-xs font-semibold text-slate-700 mb-1">Email address</label>
+        <input
+          type="email"
+          id="editUserEmail"
+          name="email"
+          required
+          class="w-full text-xs rounded-lg border border-slate-300 px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900"
+        />
+      </div>
+
+      <div>
+        <label for="editUserRole" class="block text-xs font-semibold text-slate-700 mb-1">Assigned role</label>
+        <select
+          id="editUserRole"
+          name="role"
+          required
+          class="w-full text-xs rounded-lg border border-slate-300 px-3 py-2 bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900"
+        >
+          <option value="consumer">Consumer</option>
+          <option value="manufacturer">Manufacturer</option>
+          <option value="inspector">Safety Inspector</option>
+          <option value="admin">Platform Administrator</option>
+        </select>
+      </div>
+
+      <div>
+        <label for="editUserPassword" class="block text-xs font-semibold text-slate-700 mb-1">Reset password (optional)</label>
+        <input
+          type="password"
+          id="editUserPassword"
+          name="password"
+          minlength="6"
+          placeholder="Leave blank to retain current password"
+          class="w-full text-xs rounded-lg border border-slate-300 px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900"
+        />
+      </div>
+
+      <div class="pt-2">
+        <label class="flex items-center gap-2 cursor-pointer">
+          <input
+            type="checkbox"
+            id="editUserVerified"
+            name="isVerified"
+            value="true"
+            class="rounded border-slate-300 text-slate-900 focus:ring-slate-900"
+          />
+          <span class="text-xs font-medium text-slate-700">Account verified and active</span>
+        </label>
+      </div>
+
+      <div class="pt-4 border-t border-slate-100 flex items-center justify-end gap-3">
+        <button
+          type="button"
+          onclick="closeEditUserModal()"
+          class="px-4 py-2 border border-slate-300 hover:bg-slate-50 text-slate-700 rounded-lg text-xs font-semibold transition-colors"
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          class="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-xs font-semibold transition-colors shadow-sm"
+        >
+          Save changes
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal Control Scripts -->
+<script>
+  function openAddUserModal() {
+    var modal = document.getElementById('addUserModal');
+    if (modal) modal.classList.remove('hidden');
+  }
+
+  function closeAddUserModal() {
+    var modal = document.getElementById('addUserModal');
+    if (modal) modal.classList.add('hidden');
+  }
+
+  function openEditUserModal(btn) {
+    var id = btn.getAttribute('data-id');
+    var name = btn.getAttribute('data-name');
+    var email = btn.getAttribute('data-email');
+    var role = btn.getAttribute('data-role');
+    var verified = btn.getAttribute('data-verified') === 'true';
+
+    var form = document.getElementById('editUserForm');
+    if (form) form.action = '/dashboard/admin/users/' + id + '/update';
+
+    var idDisplay = document.getElementById('editUserIdDisplay');
+    if (idDisplay) idDisplay.textContent = '#' + id;
+
+    var nameInput = document.getElementById('editUserName');
+    if (nameInput) nameInput.value = name || '';
+
+    var emailInput = document.getElementById('editUserEmail');
+    if (emailInput) emailInput.value = email || '';
+
+    var roleSelect = document.getElementById('editUserRole');
+    if (roleSelect) roleSelect.value = role || 'consumer';
+
+    var verifiedCheckbox = document.getElementById('editUserVerified');
+    if (verifiedCheckbox) verifiedCheckbox.checked = verified;
+
+    var pwdInput = document.getElementById('editUserPassword');
+    if (pwdInput) pwdInput.value = '';
+
+    var modal = document.getElementById('editUserModal');
+    if (modal) modal.classList.remove('hidden');
+  }
+
+  function closeEditUserModal() {
+    var modal = document.getElementById('editUserModal');
+    if (modal) modal.classList.add('hidden');
+  }
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      closeAddUserModal();
+      closeEditUserModal();
+    }
+  });
+</script>

@@ -303,6 +303,31 @@ describe('PreferenceService (Unit Tests)', () => {
       expect(result).toBeDefined();
       expect(result.hasAllergenConflict).toBe(false);
     });
+
+    it('should flag conflict when product protein is below user minProteinPerServing limit', () => {
+      // Arrange: Product with 2g protein, user requires 10g
+      const lowProteinProduct: FoodProduct = {
+        ...baseProduct,
+        nutritionFacts: [
+          {
+            id: 2,
+            nutrient: 'Protein',
+            amountPer100g: 1.0,
+            amountPerServing: 2.0,
+            unit: 'g',
+            dailyValuePercentage: null,
+            product: null as any,
+          },
+        ],
+      };
+
+      // Act
+      const result = service.evaluateProductConflict(mockProfile, lowProteinProduct);
+
+      // Assert
+      expect(result.hasNutritionWarning).toBe(true);
+      expect(result.conflicts.some((c) => c.title.includes('Protein'))).toBe(true);
+    });
   });
 });
 

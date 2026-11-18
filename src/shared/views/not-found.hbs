@@ -1,0 +1,44 @@
+<div class="max-w-lg mx-auto my-16 bg-white p-8 border border-slate-200 rounded-xl shadow-sm text-center">
+  <div class="w-14 h-14 bg-amber-100 text-amber-700 rounded-full flex items-center justify-center mx-auto mb-4">
+    <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+    </svg>
+  </div>
+
+  <span class="inline-block px-2.5 py-0.5 rounded text-xs font-bold uppercase tracking-wider {{#if (eq statusCode 400)}}bg-rose-50 text-rose-800 border border-rose-200{{else}}bg-amber-50 text-amber-800 border border-amber-200{{/if}} mb-2">
+    HTTP {{#if statusCode}}{{statusCode}}{{else}}404{{/if}} · {{#if (eq statusCode 400)}}Invalid Request{{else}}Page Not Found{{/if}}
+  </span>
+
+  <h1 class="text-2xl font-black text-slate-900 tracking-tight">
+    {{#if (eq statusCode 400)}}Invalid Request Data{{else}}Resource Not Located{{/if}}
+  </h1>
+  <p class="text-sm text-slate-600 mt-2 mb-6">
+    {{#if message}}
+      {{message}}
+    {{else}}
+      The route or food resource you requested could not be located in the TrueLabel registry.
+    {{/if}}
+  </p>
+
+  {{#if path}}
+    <div class="text-xs text-slate-500 bg-slate-50 rounded-lg p-3 border border-slate-200 mb-6 text-left">
+      <div class="font-bold text-slate-700">Requested Path:</div>
+      <div class="mt-0.5 font-mono text-slate-900 break-all">{{path}}</div>
+    </div>
+  {{/if}}
+
+  <div class="flex items-center justify-center gap-3">
+    <a
+      href="/catalog"
+      class="px-4 py-2 bg-slate-900 text-white rounded-lg font-bold text-xs hover:bg-slate-800 transition-colors"
+    >
+      Browse Food Catalog
+    </a>
+    <a
+      href="/"
+      class="px-4 py-2 border border-slate-300 text-slate-700 rounded-lg font-bold text-xs hover:bg-slate-100 transition-colors"
+    >
+      TrueLabel Home
+    </a>
+  </div>
+</div>

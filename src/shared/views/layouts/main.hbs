@@ -4,12 +4,24 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{{title}}</title>
-  <!-- Tailwind CSS via CDN for rapid clean styling -->
+  
+  <!-- High-Authority Typography: Plus Jakarta Sans (Interface), Newsreader (Editorial Serif), JetBrains Mono (Technical Data) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS via CDN with Custom Typography & Palette Extensions -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
+      darkMode: 'class',
       theme: {
         extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+            serif: ['Newsreader', 'Georgia', 'serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
           colors: {
             brand: {
               50: '#ecfdf5',
@@ -19,6 +31,11 @@
               800: '#065f46',
               900: '#064e3b',
             },
+            forest: {
+              800: '#166534',
+              900: '#14532d',
+              950: '#052e16',
+            },
             ink: '#0F172A',
             hazard: '#BE123C',
             caution: '#B45309'
@@ -27,15 +44,37 @@
       }
     }
   </script>
+  <!-- Anti-FOUC Early Theme Resolution: Day Mode Default for First-Time Visitors -->
+  <script>
+    (function() {
+      try {
+        var savedTheme = localStorage.getItem('truelabel_theme');
+        if (savedTheme === 'dark') {
+          document.documentElement.classList.add('dark');
+        } else {
+          document.documentElement.classList.remove('dark');
+        }
+      } catch (e) {}
+    })();
+  </script>
   <link rel="stylesheet" href="/css/style.css">
 </head>
-<body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col antialiased selection:bg-emerald-100 selection:text-emerald-900">
+<body class="bg-[#FBFBFB] dark:bg-[#090d16] text-slate-900 dark:text-slate-100 min-h-screen flex flex-col font-sans antialiased selection:bg-emerald-100 dark:selection:bg-emerald-950 selection:text-emerald-900 dark:selection:text-emerald-200">
 
   <!-- Global Header Navigation -->
   {{> navbar}}
 
   <!-- Main Body Content -->
   <main class="flex-grow container mx-auto px-4 py-8 max-w-7xl">
+    {{#if success}}
+      <div class="mb-6 p-4 rounded-md bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <svg class="w-5 h-5 text-emerald-600 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+          <span class="font-medium">{{success}}</span>
+        </div>
+      </div>
+    {{/if}}
+
     {{#if error}}
       <div class="mb-6 p-4 rounded-md bg-rose-50 border border-rose-200 text-rose-800 text-sm flex items-center justify-between">
         <div class="flex items-center gap-2">
@@ -50,6 +89,11 @@
 
   <!-- Global Footer -->
   {{> footer}}
+
+  <!-- CSE470 Viva Evaluation Floating Dock (Only active when demo switcher is enabled) -->
+  {{#if enableDemoSwitcher}}
+    {{> viva_dock}}
+  {{/if}}
 
 </body>
 </html>

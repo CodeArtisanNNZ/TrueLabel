@@ -12,8 +12,8 @@ export class RegisterDto {
   @MinLength(6, { message: 'Password must be at least 6 characters' })
   password: string;
 
-  @IsIn(['consumer', 'manufacturer', 'inspector', 'admin'], {
-    message: 'Role must be consumer, manufacturer, inspector, or admin',
+  @IsIn(['consumer', 'manufacturer'], {
+    message: 'Public registration is restricted to consumer or manufacturer accounts',
   })
   role: UserRole;
 }

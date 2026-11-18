@@ -1,0 +1,151 @@
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+  <!-- Header: Personal Dietary Health Console -->
+  <div class="bg-white border border-slate-200 rounded-xl p-6 sm:p-8 flex flex-col md:flex-row md:items-center justify-between gap-6">
+    <div class="space-y-1">
+      <div class="flex items-center gap-2">
+        <span class="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700">
+          Consumer health portal
+        </span>
+        <span class="text-xs font-mono text-slate-400">Account #{{user.id}}</span>
+      </div>
+      <h1 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">Welcome, {{user.name}}</h1>
+      <p class="text-sm text-slate-500 max-w-2xl">
+        Your active dietary shield automatically screens packaged food products against your declared allergens, lifestyle restrictions, and nutritional ceilings.
+      </p>
+    </div>
+    <div class="flex flex-wrap items-center gap-2.5">
+      <a
+        href="/personal/profile"
+        class="px-4 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-xs font-semibold transition-colors flex items-center gap-2 shadow-sm"
+      >
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+        Edit health preferences
+      </a>
+      <a
+        href="/catalog"
+        class="px-4 py-2.5 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 rounded-lg text-xs font-semibold transition-colors"
+      >
+        Browse catalog
+      </a>
+    </div>
+  </div>
+
+  <!-- Key Health Shield Metrics Grid -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <!-- Card 1: Active Allergen Shield -->
+    <div class="bg-white border border-slate-200 rounded-xl p-6 flex flex-col justify-between">
+      <div>
+        <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-3">
+          <h2 class="text-sm font-bold text-slate-900">Active allergen shield</h2>
+          <span class="w-2 h-2 rounded-full bg-rose-600"></span>
+        </div>
+        <div class="space-y-3">
+          {{#if profile.allergies.length}}
+            <div class="flex flex-wrap gap-1.5">
+              {{#each profile.allergies}}
+                <span class="px-2.5 py-1 bg-rose-50 border border-rose-200 text-rose-800 text-xs font-semibold rounded-md">
+                  {{this}}
+                </span>
+              {{/each}}
+            </div>
+            <p class="text-xs text-slate-500 mt-2">
+              Any catalog product declaring these ingredients will be flagged with a prominent conflict alert.
+            </p>
+          {{else}}
+            <p class="text-xs text-slate-500">No allergies configured yet.</p>
+            <a href="/personal/profile" class="text-xs font-semibold text-rose-700 hover:text-rose-900 underline mt-1 inline-block">
+              Add known allergens
+            </a>
+          {{/if}}
+        </div>
+      </div>
+      <div class="mt-4 pt-3 border-t border-slate-100">
+        <a href="/personal/profile" class="text-xs font-semibold text-slate-600 hover:text-slate-900 underline">
+          Update allergy list
+        </a>
+      </div>
+    </div>
+
+    <!-- Card 2: Dietary Preferences -->
+    <div class="bg-white border border-slate-200 rounded-xl p-6 flex flex-col justify-between">
+      <div>
+        <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-3">
+          <h2 class="text-sm font-bold text-slate-900">Dietary lifestyle</h2>
+          <span class="w-2 h-2 rounded-full bg-emerald-600"></span>
+        </div>
+        <div class="space-y-3">
+          {{#if profile.dietaryPreferences.length}}
+            <div class="flex flex-wrap gap-1.5">
+              {{#each profile.dietaryPreferences}}
+                <span class="px-2.5 py-1 bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold rounded-md">
+                  {{this}}
+                </span>
+              {{/each}}
+            </div>
+            <p class="text-xs text-slate-500 mt-2">
+              Packaged foods conflicting with your chosen dietary lifestyle are tagged with caution indicators.
+            </p>
+          {{else}}
+            <p class="text-xs text-slate-500">No dietary lifestyle preferences set (e.g. Vegan, Halal, Kosher).</p>
+            <a href="/personal/profile" class="text-xs font-semibold text-emerald-700 hover:text-emerald-900 underline mt-1 inline-block">
+              Set lifestyle rules
+            </a>
+          {{/if}}
+        </div>
+      </div>
+      <div class="mt-4 pt-3 border-t border-slate-100">
+        <a href="/personal/profile" class="text-xs font-semibold text-slate-600 hover:text-slate-900 underline">
+          Edit dietary rules
+        </a>
+      </div>
+    </div>
+
+    <!-- Card 3: Daily Macro Limits -->
+    <div class="bg-white border border-slate-200 rounded-xl p-6 flex flex-col justify-between">
+      <div>
+        <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-3">
+          <h2 class="text-sm font-bold text-slate-900">Daily nutritional targets</h2>
+          <span class="w-2 h-2 rounded-full bg-slate-700"></span>
+        </div>
+        <div class="space-y-2.5 text-xs">
+          <div class="flex justify-between py-1 border-b border-slate-100">
+            <span class="text-slate-500">Daily calorie target:</span>
+            <span class="font-bold text-slate-900 font-mono">{{#if profile.calorieGoal}}{{profile.calorieGoal}} kcal{{else}}Not configured{{/if}}</span>
+          </div>
+          <div class="flex justify-between py-1 border-b border-slate-100">
+            <span class="text-slate-500">Sugar limit / serving:</span>
+            <span class="font-bold text-slate-900 font-mono">{{#if profile.maxSugarPerServing}}{{profile.maxSugarPerServing}}g{{else}}No ceiling{{/if}}</span>
+          </div>
+          <div class="flex justify-between py-1">
+            <span class="text-slate-500">Sodium limit / serving:</span>
+            <span class="font-bold text-slate-900 font-mono">{{#if profile.maxSodiumPerServing}}{{profile.maxSodiumPerServing}}g{{else}}No ceiling{{/if}}</span>
+          </div>
+        </div>
+      </div>
+      <div class="mt-4 pt-3 border-t border-slate-100">
+        <a href="/personal/profile" class="text-xs font-semibold text-slate-600 hover:text-slate-900 underline">
+          Adjust nutritional limits
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent Catalog Foods with Personalized Conflict Analysis -->
+  <div class="bg-white border border-slate-200 rounded-xl p-6">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200 mb-6">
+      <div>
+        <h2 class="text-base font-bold text-slate-900">Catalog foods evaluated for your profile</h2>
+        <p class="text-xs text-slate-500 mt-0.5">Automated allergen screening against your active health settings</p>
+      </div>
+      <a href="/catalog" class="text-xs font-semibold text-slate-700 hover:text-slate-900 underline">
+        Browse complete catalog
+      </a>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      {{#each recentProducts}}
+        {{> _food_card this}}
+      {{/each}}
+    </div>
+  </div>
+</div>

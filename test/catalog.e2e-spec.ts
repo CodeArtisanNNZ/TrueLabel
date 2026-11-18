@@ -55,6 +55,17 @@ describe('Food Catalog (E2E Integration Test)', () => {
     await app.close();
   });
 
+  it('GET / should return 200 OK and render the authoritative Home Page', async () => {
+    const response = await request(app.getHttpServer())
+      .get('/')
+      .expect(200);
+
+    expect(response.text).toContain('TrueLabel');
+    expect(response.text).toContain('Every ingredient decoded');
+    expect(response.text).toContain('Food Quality Formula');
+    expect(response.text).toContain('Verify Manufacturer Accreditation Live');
+  });
+
   it('GET /catalog should return 200 OK and render food catalog page', async () => {
     const response = await request(app.getHttpServer())
       .get('/catalog')

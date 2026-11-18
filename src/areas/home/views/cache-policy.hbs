@@ -1,0 +1,126 @@
+<div class="max-w-4xl mx-auto space-y-8 py-4">
+
+  <!-- Breadcrumbs & Document Header -->
+  <div class="space-y-2">
+    <div class="flex items-center gap-2 text-xs font-semibold text-slate-500">
+      <a href="/" class="hover:text-slate-900 transition-colors">&larr; Back to Home</a>
+      <span>/</span>
+      <span class="text-slate-700">Legal & Governance</span>
+    </div>
+    <div class="flex items-center gap-2 pt-1">
+      <span class="px-2.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-blue-100 text-blue-800 border border-blue-300">
+        Technical Architecture
+      </span>
+      <span class="text-xs text-slate-400 font-mono">Policy Version 1.2</span>
+    </div>
+    <h1 class="font-serif text-3xl sm:text-4xl text-slate-950 tracking-tight pt-1">
+      Cache, Cookies & Data Storage Policy
+    </h1>
+    <p class="text-sm sm:text-base text-slate-600 leading-relaxed max-w-3xl">
+      Technical documentation describing how TrueLabel utilizes essential session cookies, browser caching, cache invalidation protocols, and local storage to guarantee high availability and sub-second catalog discovery.
+    </p>
+  </div>
+
+  <!-- Cookie Transparency Summary Box -->
+  <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+    <h2 class="text-sm font-black text-slate-950 uppercase tracking-wider mb-3">Cookie Classification Summary</h2>
+    <div class="overflow-x-auto">
+      <table class="w-full text-xs text-left border-collapse">
+        <thead>
+          <tr class="border-b border-slate-200 text-slate-500 uppercase tracking-wider font-bold text-[10px]">
+            <th class="py-2.5 pr-4">Cookie Identifier</th>
+            <th class="py-2.5 pr-4">Category</th>
+            <th class="py-2.5 pr-4">Lifespan</th>
+            <th class="py-2.5">Security Scope & Purpose</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100 text-slate-700">
+          <tr>
+            <td class="py-2.5 pr-4 font-mono font-bold text-slate-900">connect.sid</td>
+            <td class="py-2.5 pr-4"><span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-bold text-[10px]">Strictly Essential</span></td>
+            <td class="py-2.5 pr-4">24 Hours</td>
+            <td class="py-2.5">Authenticates user sessions, role identification (Consumer, Manufacturer, Inspector, Admin). <code class="font-mono text-[11px] bg-slate-100 px-1 py-0.5 rounded">httpOnly, sameSite: lax</code>.</td>
+          </tr>
+          <tr>
+            <td class="py-2.5 pr-4 font-mono font-bold text-slate-900">_csrf</td>
+            <td class="py-2.5 pr-4"><span class="px-2 py-0.5 rounded bg-blue-100 text-blue-800 font-bold text-[10px]">Security</span></td>
+            <td class="py-2.5 pr-4">Session Duration</td>
+            <td class="py-2.5">Cryptographic token preventing cross-site request forgery attacks on form submissions and profile updates.</td>
+          </tr>
+          <tr>
+            <td class="py-2.5 pr-4 font-mono font-bold text-slate-400">Marketing / Ad Trackers</td>
+            <td class="py-2.5 pr-4"><span class="px-2 py-0.5 rounded bg-slate-100 text-slate-500 font-bold text-[10px]">Not Used</span></td>
+            <td class="py-2.5 pr-4">N/A</td>
+            <td class="py-2.5 text-slate-400 italic">TrueLabel operates with ZERO third-party marketing, retargeting, or advertising tracking cookies.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Detailed Policy Sections -->
+  <div class="bg-white border border-slate-200 rounded-2xl p-6 sm:p-10 shadow-sm space-y-8 text-sm text-slate-700 leading-relaxed">
+
+    <!-- Section 1 -->
+    <section class="space-y-3">
+      <h2 class="text-lg font-black text-slate-950 tracking-tight flex items-center gap-2 border-b border-slate-100 pb-2">
+        <span class="w-6 h-6 rounded-full bg-slate-900 text-white flex items-center justify-center text-xs font-mono">1</span>
+        HTTP Cache Headers & Static Asset Optimization
+      </h2>
+      <p>
+        To deliver instantaneous response times across web and mobile browsers, TrueLabel applies differentiated caching rules depending on data volatility:
+      </p>
+      <ul class="list-disc pl-6 space-y-1.5 text-slate-600">
+        <li><strong>Static Assets (CSS, Fonts, Logos, Client JS)</strong>: Served with long-lived immutable cache directives (<code class="font-mono text-xs bg-slate-100 px-1 py-0.5 rounded">max-age=31536000, immutable</code>) via reverse proxy. Assets are revision-stamped on deployment.</li>
+        <li><strong>Public Catalog Views & Product Details</strong>: Cached with short-lived revalidation headers to maintain performance while guaranteeing freshness.</li>
+        <li><strong>Authenticated Health Profiles & Personal Intake</strong>: Enforced with <code class="font-mono text-xs bg-slate-100 px-1 py-0.5 rounded">Cache-Control: no-store, no-cache, must-revalidate</code> to prevent local shared workstation caches from exposing personal allergen conditions.</li>
+      </ul>
+    </section>
+
+    <!-- Section 2 -->
+    <section class="space-y-3">
+      <h2 class="text-lg font-black text-slate-950 tracking-tight flex items-center gap-2 border-b border-slate-100 pb-2">
+        <span class="w-6 h-6 rounded-full bg-slate-900 text-white flex items-center justify-center text-xs font-mono">2</span>
+        Real-Time Cache Invalidation Protocols
+      </h2>
+      <p>
+        In food safety architecture, stale cached data can endanger consumer health. TrueLabel adheres to strict invalidation hooks:
+      </p>
+      <div class="space-y-2 pt-1">
+        <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-xs">
+          <strong class="text-slate-900">Event A · Manufacturer Product Update:</strong> When a food manufacturer updates an ingredient list or dietary tag, cached catalog search items and detail views are immediately flushed.
+        </div>
+        <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-xs">
+          <strong class="text-slate-900">Event B · Inspector Accreditation Decision:</strong> When an inspector approves or rejects a compliance document, the public verification registry updates instantaneously.
+        </div>
+        <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-xs">
+          <strong class="text-slate-900">Event C · Consumer Preference Change:</strong> Modifying saved allergies immediately updates the conflict detection state across all catalog products on the user's active session.
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 3 -->
+    <section class="space-y-3">
+      <h2 class="text-lg font-black text-slate-950 tracking-tight flex items-center gap-2 border-b border-slate-100 pb-2">
+        <span class="w-6 h-6 rounded-full bg-slate-900 text-white flex items-center justify-center text-xs font-mono">3</span>
+        Managing Cookies in Your Browser
+      </h2>
+      <p>
+        Because TrueLabel only uses strictly essential cookies required for authentication and CSRF security, disabling cookies in your browser settings will prevent you from signing in or maintaining personal health preferences. However, unauthenticated guests may continue browsing the food catalog and verifying manufacturer licences without cookies enabled.
+      </p>
+    </section>
+
+  </div>
+
+  <!-- Footer Actions -->
+  <div class="flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-slate-200 text-xs">
+    <div class="text-slate-500">
+      Need technical caching specifications? <a href="/contact" class="text-emerald-700 font-bold hover:underline">Contact Platform Engineering</a>.
+    </div>
+    <div class="flex items-center gap-3">
+      <a href="/terms" class="text-slate-700 hover:text-slate-950 font-medium">Terms of Service &rarr;</a>
+      <a href="/privacy" class="text-slate-700 hover:text-slate-950 font-medium">Privacy Policy &rarr;</a>
+    </div>
+  </div>
+
+</div>

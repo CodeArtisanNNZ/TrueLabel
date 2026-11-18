@@ -1,0 +1,106 @@
+<div class="pt-5 border-t border-slate-200 space-y-4">
+  <div>
+    <h2 class="text-sm font-bold text-slate-900">Statutory nutrition facts (per 100g / 100ml)</h2>
+    <p class="text-xs text-slate-500 mt-0.5">Mandatory statutory declaration from the food packaging panel</p>
+  </div>
+  
+  <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-slate-50 p-4 rounded-xl border border-slate-200">
+    <div>
+      <label class="block text-[11px] font-semibold text-slate-700 mb-1">Energy (kcal) *</label>
+      <input
+        type="number"
+        name="nutrition_energy"
+        step="0.1"
+        min="0"
+        required
+        placeholder="e.g. 59"
+        value="{{#if nutritionMap.Energy}}{{nutritionMap.Energy}}{{else}}{{#if productData.nutrition_energy}}{{productData.nutrition_energy}}{{else}}0{{/if}}{{/if}}"
+        class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm bg-white font-mono focus:ring-2 focus:ring-slate-900"
+      />
+    </div>
+    <div>
+      <label class="block text-[11px] font-semibold text-slate-700 mb-1">Total fat (g)</label>
+      <input
+        type="number"
+        name="nutrition_fat"
+        step="0.1"
+        min="0"
+        placeholder="e.g. 3.0"
+        value="{{#if nutritionMap.Fat}}{{nutritionMap.Fat}}{{else}}{{#if productData.nutrition_fat}}{{productData.nutrition_fat}}{{else}}0{{/if}}{{/if}}"
+        class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm bg-white font-mono focus:ring-2 focus:ring-slate-900"
+      />
+    </div>
+    <div>
+      <label class="block text-[11px] font-semibold text-slate-700 mb-1">Saturated fat (g)</label>
+      <input
+        type="number"
+        name="nutrition_saturatedFat"
+        step="0.1"
+        min="0"
+        placeholder="e.g. 0.3"
+        value="{{#if nutritionMap.SaturatedFat}}{{nutritionMap.SaturatedFat}}{{else}}{{#if productData.nutrition_saturatedFat}}{{productData.nutrition_saturatedFat}}{{else}}0{{/if}}{{/if}}"
+        class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm bg-white font-mono focus:ring-2 focus:ring-slate-900"
+      />
+    </div>
+    <div>
+      <label class="block text-[11px] font-semibold text-slate-700 mb-1">Carbohydrates (g)</label>
+      <input
+        type="number"
+        name="nutrition_carbohydrates"
+        step="0.1"
+        min="0"
+        placeholder="e.g. 6.6"
+        value="{{#if nutritionMap.Carbohydrates}}{{nutritionMap.Carbohydrates}}{{else}}{{#if productData.nutrition_carbohydrates}}{{productData.nutrition_carbohydrates}}{{else}}0{{/if}}{{/if}}"
+        class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm bg-white font-mono focus:ring-2 focus:ring-slate-900"
+      />
+    </div>
+    <div>
+      <label class="block text-[11px] font-semibold text-slate-700 mb-1">Sugars (g)</label>
+      <input
+        type="number"
+        name="nutrition_sugars"
+        step="0.1"
+        min="0"
+        placeholder="e.g. 4.0"
+        value="{{#if nutritionMap.Sugars}}{{nutritionMap.Sugars}}{{else}}{{#if productData.nutrition_sugars}}{{productData.nutrition_sugars}}{{else}}0{{/if}}{{/if}}"
+        class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm bg-white font-mono focus:ring-2 focus:ring-slate-900"
+      />
+    </div>
+    <div>
+      <label class="block text-[11px] font-semibold text-slate-700 mb-1">Dietary fiber (g)</label>
+      <input
+        type="number"
+        name="nutrition_fiber"
+        step="0.1"
+        min="0"
+        placeholder="e.g. 0.8"
+        value="{{#if nutritionMap.Fiber}}{{nutritionMap.Fiber}}{{else}}{{#if productData.nutrition_fiber}}{{productData.nutrition_fiber}}{{else}}0{{/if}}{{/if}}"
+        class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm bg-white font-mono focus:ring-2 focus:ring-slate-900"
+      />
+    </div>
+    <div>
+      <label class="block text-[11px] font-semibold text-slate-700 mb-1">Protein (g)</label>
+      <input
+        type="number"
+        name="nutrition_protein"
+        step="0.1"
+        min="0"
+        placeholder="e.g. 1.2"
+        value="{{#if nutritionMap.Protein}}{{nutritionMap.Protein}}{{else}}{{#if productData.nutrition_protein}}{{productData.nutrition_protein}}{{else}}0{{/if}}{{/if}}"
+        class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm bg-white font-mono focus:ring-2 focus:ring-slate-900"
+      />
+    </div>
+    <div>
+      <label class="block text-[11px] font-semibold text-slate-700 mb-1">Salt / sodium (g)</label>
+      <input
+        type="number"
+        name="nutrition_salt"
+        step="0.01"
+        min="0"
+        placeholder="e.g. 0.10"
+        value="{{#if nutritionMap.Salt}}{{nutritionMap.Salt}}{{else}}{{#if productData.nutrition_salt}}{{productData.nutrition_salt}}{{else}}0{{/if}}{{/if}}"
+        class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm bg-white font-mono focus:ring-2 focus:ring-slate-900"
+      />
+    </div>
+  </div>
+</div>

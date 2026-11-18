@@ -1,0 +1,172 @@
+<!-- Feature F06: Official Manufacturer Licence Registry Verification -->
+<div class="max-w-4xl mx-auto space-y-8">
+
+  <!-- Header Banner -->
+  <div class="bg-white border border-slate-200 rounded-lg p-6 shadow-sm">
+    <div class="flex items-center gap-2 mb-1">
+      <span class="inline-flex items-center px-2.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-emerald-100 text-emerald-800 border border-emerald-200">
+        Official Standards Registry
+      </span>
+    </div>
+    <h1 class="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
+      Manufacturer Licence Verification
+    </h1>
+    <p class="text-sm text-slate-600 mt-1 max-w-2xl">
+      Verify the authenticity and regulatory standing of food manufacturers against national and international food standards bodies (BSTI, BFSA, FDA).
+    </p>
+  </div>
+
+  <!-- Search Card -->
+  <div class="bg-white border border-slate-200 rounded-lg p-6 shadow-sm space-y-4">
+    <form action="/safety/licence/verify" method="GET" class="flex flex-col sm:flex-row gap-3">
+      <div class="flex-grow">
+        <label for="licenceNumber" class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">
+          Enter Official Licence / Registration Number
+        </label>
+        <input 
+          type="text" 
+          id="licenceNumber" 
+          name="licenceNumber" 
+          required 
+          value="{{licenceNumber}}"
+          placeholder="e.g. BSTI-FOOD-2024-001, BFSA-REG-88219" 
+          class="w-full text-base px-4 py-2.5 rounded-md border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:border-transparent font-mono tracking-wider font-semibold"
+        >
+      </div>
+      <div class="flex items-end">
+        <button type="submit" class="w-full sm:w-auto px-6 py-2.5 rounded-md text-xs font-bold uppercase tracking-wider bg-slate-900 text-white hover:bg-slate-800 transition-colors shadow-sm flex items-center justify-center gap-2">
+          <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+          Verify Credential
+        </button>
+      </div>
+    </form>
+
+    <!-- Sample Verification Demo Tests -->
+    <div class="pt-3 border-t border-slate-100">
+      {{> _sample_licence_chips}}
+    </div>
+  </div>
+
+  <!-- Result Presentation -->
+  {{#if result}}
+    <div class="bg-white border border-slate-200 rounded-lg shadow-sm overflow-hidden">
+      
+      <!-- Status Header -->
+      {{#if result.isValid}}
+        <div class="p-6 bg-emerald-50 border-b border-emerald-200">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-emerald-600 text-white flex items-center justify-center font-black flex-shrink-0">
+              <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+            </div>
+            <div>
+              <div class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-extrabold uppercase tracking-wider bg-emerald-200 text-emerald-900 mb-1">
+                Verified Active & In Good Standing
+              </div>
+              <h2 class="text-xl font-black text-emerald-900 tracking-tight">
+                {{result.licence.companyName}}
+              </h2>
+              <p class="text-xs text-emerald-800 mt-0.5">{{result.message}}</p>
+            </div>
+          </div>
+        </div>
+      {{else if result.isSuspended}}
+        <div class="p-6 bg-rose-50 border-b border-rose-200">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-rose-600 text-white flex items-center justify-center font-black flex-shrink-0">
+              <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+            </div>
+            <div>
+              <div class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-extrabold uppercase tracking-wider bg-rose-200 text-rose-900 mb-1">
+                Licence Suspended / Revoked
+              </div>
+              <h2 class="text-xl font-black text-rose-900 tracking-tight">
+                {{result.licence.companyName}}
+              </h2>
+              <p class="text-xs text-rose-800 mt-0.5">{{result.message}}</p>
+            </div>
+          </div>
+        </div>
+      {{else if result.isExpired}}
+        <div class="p-6 bg-rose-50 border-b border-rose-200">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-rose-600 text-white flex items-center justify-center font-black flex-shrink-0">
+              <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/></svg>
+            </div>
+            <div>
+              <div class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-extrabold uppercase tracking-wider bg-rose-200 text-rose-900 mb-1">
+                Licence Expired
+              </div>
+              <h2 class="text-xl font-black text-rose-900 tracking-tight">
+                {{result.licence.companyName}}
+              </h2>
+              <p class="text-xs text-rose-800 mt-0.5">{{result.message}}</p>
+            </div>
+          </div>
+        </div>
+      {{else}}
+        <div class="p-6 bg-slate-50 border-b border-slate-200">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-slate-400 text-white flex items-center justify-center font-black flex-shrink-0">
+              ?
+            </div>
+            <div>
+              <div class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-extrabold uppercase tracking-wider bg-slate-200 text-slate-800 mb-1">
+                Not Found in Registry
+              </div>
+              <h2 class="text-xl font-black text-slate-900 tracking-tight">
+                Unregistered Food Manufacturer
+              </h2>
+              <p class="text-xs text-slate-600 mt-0.5">{{result.message}}</p>
+            </div>
+          </div>
+        </div>
+      {{/if}}
+
+      <!-- Credential Breakdown -->
+      {{#if result.licence}}
+        <div class="p-6 space-y-4">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+            <div class="bg-slate-50 p-3 rounded border border-slate-200">
+              <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Licence Identifier</span>
+              <span class="font-mono font-bold text-slate-900 text-base">{{result.licence.licenceNumber}}</span>
+            </div>
+            <div class="bg-slate-50 p-3 rounded border border-slate-200">
+              <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Accreditation Authority</span>
+              <span class="font-bold text-slate-900">{{result.licence.authority}}</span>
+            </div>
+            <div class="bg-slate-50 p-3 rounded border border-slate-200">
+              <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Product Category Scope</span>
+              <span class="font-medium text-slate-800">{{result.licence.category}}</span>
+            </div>
+            <div class="bg-slate-50 p-3 rounded border border-slate-200">
+              <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Registered Manufacturing Address</span>
+              <span class="font-medium text-slate-800">{{result.licence.address}}</span>
+            </div>
+            <div class="bg-slate-50 p-3 rounded border border-slate-200">
+              <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Date of Issue</span>
+              <span class="font-medium text-slate-800">{{result.licence.issueDate}}</span>
+            </div>
+            <div class="bg-slate-50 p-3 rounded border border-slate-200">
+              <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Valid Until (Expiry)</span>
+              <span class="font-medium text-slate-800">{{result.licence.expiryDate}}</span>
+              {{#if (gte result.daysRemaining 0)}}
+                <span class="text-[11px] font-semibold text-emerald-700 block mt-0.5">({{result.daysRemaining}} days remaining)</span>
+              {{/if}}
+            </div>
+          </div>
+        </div>
+      {{/if}}
+
+    </div>
+  {{/if}}
+
+  <!-- Regulatory Notice -->
+  <div class="text-xs text-slate-500 flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3.5 rounded-lg bg-slate-50 border border-slate-200">
+    <div class="flex items-center gap-2">
+      <span class="w-1.5 h-1.5 rounded-full bg-emerald-600 flex-shrink-0"></span>
+      <span>Licence registry cross-references authentic records from BSTI, BFSA, and accredited partner bodies.</span>
+    </div>
+    <a href="/about" class="text-slate-700 hover:text-slate-900 font-semibold underline flex-shrink-0">Verification rules</a>
+  </div>
+
+</div>

@@ -6,7 +6,7 @@ import {
   IsArray,
   ValidateNested,
 } from 'class-validator';
-import { Type } from 'class-transformer';
+import { Type, Transform } from 'class-transformer';
 
 export class CreateIngredientDto {
   @IsNotEmpty({ message: 'Ingredient name is required' })
@@ -35,11 +35,13 @@ export class CreateNutritionFactDto {
   nutrient: string;
 
   @IsNotEmpty({ message: 'Amount per 100g is required' })
-  @IsNumber()
+  @Type(() => Number)
+  @IsNumber({}, { message: 'Amount per 100g must be a valid number' })
   amountPer100g: number;
 
   @IsOptional()
-  @IsNumber()
+  @Type(() => Number)
+  @IsNumber({}, { message: 'Amount per serving must be a valid number' })
   amountPerServing?: number;
 
   @IsNotEmpty({ message: 'Unit is required' })
@@ -47,7 +49,8 @@ export class CreateNutritionFactDto {
   unit: string;
 
   @IsOptional()
-  @IsNumber()
+  @Type(() => Number)
+  @IsNumber({}, { message: 'Daily value percentage must be a valid number' })
   dailyValuePercentage?: number;
 }
 
@@ -77,7 +80,8 @@ export class CreateFoodProductDto {
   description?: string;
 
   @IsOptional()
-  @IsNumber()
+  @Type(() => Number)
+  @IsNumber({}, { message: 'Serving size must be a valid number' })
   servingSize?: number;
 
   @IsOptional()
@@ -85,7 +89,22 @@ export class CreateFoodProductDto {
   servingUnit?: string;
 
   @IsOptional()
-  @IsArray()
+  @Transform(({ value }) => {
+    if (value === undefined || value === null || value === '') {
+      return [];
+    }
+    if (Array.isArray(value)) {
+      return value.map((tag) => String(tag).trim()).filter(Boolean);
+    }
+    if (typeof value === 'string') {
+      return value
+        .split(',')
+        .map((tag) => tag.trim())
+        .filter(Boolean);
+    }
+    return value;
+  })
+  @IsArray({ message: 'Dietary tags must be an array of strings' })
   dietaryTags?: string[];
 
   @IsOptional()

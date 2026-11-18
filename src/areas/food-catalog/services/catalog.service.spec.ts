@@ -289,6 +289,146 @@ describe('CatalogService (Unit Tests)', () => {
       expect(result.total).toBe(1);
       expect(mockQueryBuilder.andWhere).toHaveBeenCalled();
     });
+
+    it('should filter by dietary tag in query builder', async () => {
+      // Arrange
+      const mockQueryBuilder = {
+        leftJoinAndSelect: jest.fn().mockReturnThis(),
+        where: jest.fn().mockReturnThis(),
+        andWhere: jest.fn().mockReturnThis(),
+        orderBy: jest.fn().mockReturnThis(),
+        skip: jest.fn().mockReturnThis(),
+        take: jest.fn().mockReturnThis(),
+        getManyAndCount: jest.fn().mockResolvedValue([[mockProduct], 1]),
+      };
+      (productRepo.createQueryBuilder as jest.Mock).mockReturnValue(mockQueryBuilder);
+
+      // Act
+      const result = await service.searchAndFilter({ tag: 'Vegan' });
+
+      // Assert
+      expect(result.items).toHaveLength(1);
+      expect(mockQueryBuilder.andWhere).toHaveBeenCalledWith(
+        'LOWER(product.dietaryTags) LIKE :tag',
+        { tag: '%vegan%' },
+      );
+    });
+  });
+
+  describe('getQualityScoreTier (Quality Scoring & Tier Logic)', () => {
+    it('should classify high scores (>= 80) as Tier 1 with emerald styling', () => {
+      const tier80 = service.getQualityScoreTier(80);
+      const tier92 = service.getQualityScoreTier(92);
+
+      expect(tier80.tierNumber).toBe(1);
+      expect(tier80.tierLabel).toContain('Tier 1');
+      expect(tier80.textColorClass).toContain('text-emerald-700');
+      expect(tier80.badgeClass).toBe('score-badge-high');
+      expect(tier80.isHigh).toBe(true);
+
+      expect(tier92.tierNumber).toBe(1);
+      expect(tier92.isHigh).toBe(true);
+    });
+
+    it('should classify moderate scores (60-79) as Tier 2 with amber styling', () => {
+      const tier60 = service.getQualityScoreTier(60);
+      const tier75 = service.getQualityScoreTier(75);
+
+      expect(tier60.tierNumber).toBe(2);
+      expect(tier60.tierLabel).toContain('Tier 2');
+      expect(tier60.textColorClass).toContain('text-amber-700');
+      expect(tier60.badgeClass).toBe('score-badge-mid');
+      expect(tier60.isMid).toBe(true);
+
+      expect(tier75.tierNumber).toBe(2);
+      expect(tier75.isMid).toBe(true);
+    });
+
+    it('should classify low scores (< 60) such as 54 as Tier 3 with rose/crimson styling (NOT emerald)', () => {
+      const tier54 = service.getQualityScoreTier(54);
+      const tier59 = service.getQualityScoreTier(59);
+
+      // Score 54 must be Tier 3 and Rose, never Tier 1 or Emerald
+      expect(tier54.score).toBe(54);
+      expect(tier54.tierNumber).toBe(3);
+      expect(tier54.tierLabel).toContain('Tier 3');
+      expect(tier54.textColorClass).toContain('text-rose-700');
+      expect(tier54.textColorClass).not.toContain('text-emerald');
+      expect(tier54.badgeClass).toBe('score-badge-low');
+      expect(tier54.isLow).toBe(true);
+      expect(tier54.isHigh).toBe(false);
+
+      expect(tier59.tierNumber).toBe(3);
+      expect(tier59.isLow).toBe(true);
+    });
+  });
+
+  describe('buildDossierSpecimen (Forensic Specimen Generator)', () => {
+    it('should return null if product is null or undefined', () => {
+      expect(service.buildDossierSpecimen(null as any)).toBeNull();
+    });
+
+    it('should generate accurate forensic analysis for clean specimen (score 92)', () => {
+      const cleanProduct: FoodProduct = {
+        ...mockProduct,
+        qualityScore: 92,
+        ingredients: [
+          { id: 1, name: 'Water', hazardLevel: 'safe', isAllergen: false } as any,
+          { id: 2, name: 'Oats', hazardLevel: 'safe', isAllergen: true, allergenType: 'Gluten' } as any,
+        ],
+        nutritionFacts: [
+          { id: 1, nutrient: 'Sugars', amountPer100g: 3.5, unit: 'g' } as any,
+        ],
+      };
+
+      const specimen = service.buildDossierSpecimen(cleanProduct, 'BSTI-FOOD-2024-001');
+
+      expect(specimen).not.toBeNull();
+      expect(specimen?.tierInfo.tierNumber).toBe(1);
+      expect(specimen?.tierInfo.textColorClass).toContain('text-emerald-700');
+      expect(specimen?.additivesSummary.count).toBe(0);
+      expect(specimen?.additivesSummary.label).toContain('0 Detected (Clean Label)');
+      expect(specimen?.allergensSummary.count).toBe(1);
+      expect(specimen?.allergensSummary.label).toContain('Gluten Declared');
+      expect(specimen?.sugarSummary.status).toBe('safe');
+      expect(specimen?.sugarSummary.label).toContain('Low Density');
+      expect(specimen?.nationalLicence).toBe('BSTI-FOOD-2024-001 (Valid)');
+    });
+
+    it('should generate accurate forensic analysis for additive-dense low score specimen (score 54)', () => {
+      const sodaProduct: FoodProduct = {
+        ...mockProduct,
+        id: 4,
+        name: 'Sparkling Dark Citrus Soda',
+        brand: 'FizzCraft',
+        qualityScore: 54,
+        servingUnit: 'ml',
+        ingredients: [
+          { id: 1, name: 'Carbonated Water', hazardLevel: 'safe', isAllergen: false } as any,
+          { id: 2, name: 'High Fructose Corn Syrup', hazardLevel: 'caution', isAllergen: false } as any,
+          { id: 3, name: 'Caramel Color', additiveCode: 'E150d', hazardLevel: 'caution', isAllergen: false } as any,
+          { id: 4, name: 'Phosphoric Acid', additiveCode: 'E338', hazardLevel: 'caution', isAllergen: false } as any,
+        ],
+        nutritionFacts: [
+          { id: 1, nutrient: 'Sugars', amountPer100g: 10.6, unit: 'g' } as any,
+        ],
+      };
+
+      const specimen = service.buildDossierSpecimen(sodaProduct);
+
+      expect(specimen).not.toBeNull();
+      expect(specimen?.tierInfo.score).toBe(54);
+      expect(specimen?.tierInfo.tierNumber).toBe(3);
+      expect(specimen?.tierInfo.textColorClass).toContain('text-rose-700');
+      expect(specimen?.tierInfo.textColorClass).not.toContain('text-emerald');
+      expect(specimen?.additivesSummary.count).toBe(3); // Corn syrup (caution), E150d, E338
+      expect(specimen?.additivesSummary.status).toBe('hazard');
+      expect(specimen?.additivesSummary.label).toContain('Detected');
+      expect(specimen?.allergensSummary.count).toBe(0);
+      expect(specimen?.allergensSummary.label).toContain('0 Declared');
+      expect(specimen?.sugarSummary.status).toBe('hazard');
+      expect(specimen?.sugarSummary.label).toContain('High Density / Flagged');
+    });
   });
 });
 

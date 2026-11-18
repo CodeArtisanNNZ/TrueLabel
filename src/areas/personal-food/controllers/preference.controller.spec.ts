@@ -70,6 +70,20 @@ describe('PreferenceController (Unit Tests)', () => {
       expect(result.standardDiets).toContain('Vegan');
       expect(service.findOrCreate).toHaveBeenCalledWith(5);
     });
+
+    it('should redirect non-consumer roles to their role dashboard', async () => {
+      const req: any = {
+        session: {
+          user: { id: 10, name: 'PRAN', email: 'pran@test.com', role: 'manufacturer' },
+        },
+      };
+      const res: any = { redirect: jest.fn() };
+
+      await controller.getProfile(req, undefined, res);
+
+      expect(res.redirect).toHaveBeenCalledWith('/dashboard/manufacturer');
+      expect(service.findOrCreate).not.toHaveBeenCalled();
+    });
   });
 
   describe('updateProfile', () => {
@@ -79,6 +93,10 @@ describe('PreferenceController (Unit Tests)', () => {
       const req: any = {
         session: {
           user: { id: 5, name: 'Alice', email: 'alice@test.com', role: 'consumer' },
+        },
+        body: {
+          allergies: ['Peanut', 'Milk'],
+          dietaryPreferences: ['Vegan'],
         },
       };
       const res: any = {
@@ -96,6 +114,35 @@ describe('PreferenceController (Unit Tests)', () => {
       // Assert
       expect(service.updateProfile).toHaveBeenCalledWith(5, dto);
       expect(res.redirect).toHaveBeenCalledWith('/personal/profile?saved=true');
+    });
+
+    it('should re-render profile view with error if service throws', async () => {
+      // Arrange
+      service.updateProfile.mockRejectedValue(new Error('Database write error'));
+      service.findOrCreate.mockResolvedValue(mockProfile as any);
+      const req: any = {
+        session: {
+          user: { id: 5, name: 'Alice', email: 'alice@test.com', role: 'consumer' },
+        },
+        body: {},
+      };
+      const res: any = {
+        render: jest.fn(),
+      };
+      const dto: UpdatePreferenceProfileDto = {
+        calorieGoal: 2100,
+      };
+
+      // Act
+      await controller.updateProfile(dto, req, res);
+
+      // Assert
+      expect(res.render).toHaveBeenCalledWith(
+        'areas/personal-food/views/profile',
+        expect.objectContaining({
+          error: 'Database write error',
+        }),
+      );
     });
   });
 });

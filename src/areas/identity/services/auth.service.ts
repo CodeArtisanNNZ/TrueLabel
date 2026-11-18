@@ -7,7 +7,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcryptjs';
-import { User } from '../models/user.entity';
+import { User, UserRole } from '../models/user.entity';
 import { RegisterDto } from '../models/dto/register.dto';
 import { LoginDto } from '../models/dto/login.dto';
 
@@ -30,11 +30,15 @@ export class AuthService {
     const salt = await bcrypt.genSalt(10);
     const passwordHash = await bcrypt.hash(registerDto.password, salt);
 
+    // Defense-in-depth: Ensure self-registration can never assign elevated roles
+    const allowedRoles: UserRole[] = ['consumer', 'manufacturer'];
+    const role: UserRole = allowedRoles.includes(registerDto.role) ? registerDto.role : 'consumer';
+
     const user = this.userRepository.create({
       name: registerDto.name.trim(),
       email: registerDto.email.toLowerCase().trim(),
       passwordHash,
-      role: registerDto.role,
+      role,
       isVerified: true,
     });
 

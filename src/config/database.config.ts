@@ -5,6 +5,8 @@ import { FoodProduct } from '../areas/food-catalog/models/food-product.entity';
 import { Ingredient } from '../areas/food-catalog/models/ingredient.entity';
 import { NutritionFact } from '../areas/food-catalog/models/nutrition-fact.entity';
 import { PreferenceProfile } from '../areas/personal-food/models/preference-profile.entity';
+import { FoodSafetyDocument } from '../areas/food-safety/models/food-safety-document.entity';
+import { ManufacturerLicence } from '../areas/food-safety/models/manufacturer-licence.entity';
 import { FoodReview } from '../areas/community/models/food-review.entity';
 import { FoodReport } from '../areas/community/models/food-report.entity';
 import { ReportEvidence } from '../areas/community/models/report-evidence.entity';
@@ -17,12 +19,25 @@ const ALL_ENTITIES = [
   Ingredient,
   NutritionFact,
   PreferenceProfile,
+  FoodSafetyDocument,
+  ManufacturerLicence,
   FoodReview,
   FoodReport,
   ReportEvidence,
 ];
 
 export const getDatabaseConfig = (): TypeOrmModuleOptions => {
+  if (process.env.DB_TYPE === 'sqlite' || process.env.DB_TYPE === 'sqljs') {
+    return {
+      type: 'sqljs',
+      autoSave: true,
+      location: process.env.DB_DATABASE || 'truelabel_dev.sqlite',
+      entities: ALL_ENTITIES,
+      autoLoadEntities: true,
+      synchronize: true,
+    };
+  }
+
   const databaseUrl = process.env.DATABASE_URL || process.env.SUPABASE_DB_URL;
   const isPostgres = process.env.DB_TYPE === 'postgres' || Boolean(databaseUrl);
 
@@ -34,7 +49,7 @@ export const getDatabaseConfig = (): TypeOrmModuleOptions => {
       ssl: process.env.DB_SSL === 'false' ? false : { rejectUnauthorized: false },
       entities: ALL_ENTITIES,
       autoLoadEntities: true,
-      synchronize: process.env.DB_SYNC === 'true', // Only enable on an isolated development DB
+      synchronize: process.env.DB_SYNC !== 'false', // Enabled by default; set DB_SYNC=false to use manual migrations
       extra: {
         max: 10,
         connectionTimeoutMillis: 10000,
@@ -53,7 +68,7 @@ export const getDatabaseConfig = (): TypeOrmModuleOptions => {
       ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
       entities: ALL_ENTITIES,
       autoLoadEntities: true,
-      synchronize: process.env.DB_SYNC === 'true',
+      synchronize: process.env.DB_SYNC !== 'false',
       extra: {
         max: 10,
         connectionTimeoutMillis: 10000,

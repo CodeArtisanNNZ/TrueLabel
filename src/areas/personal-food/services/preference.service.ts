@@ -93,37 +93,49 @@ export class PreferenceService {
     let profile = await this.findOrCreate(userId);
 
     if (dto.allergies !== undefined) {
-      profile.allergies = dto.allergies;
+      profile.allergies = dto.allergies || [];
     }
     if (dto.dietaryPreferences !== undefined) {
-      profile.dietaryPreferences = dto.dietaryPreferences;
+      profile.dietaryPreferences = dto.dietaryPreferences || [];
     }
     if (dto.dislikedIngredients !== undefined) {
-      profile.dislikedIngredients = dto.dislikedIngredients;
+      profile.dislikedIngredients = dto.dislikedIngredients || [];
     }
     if (dto.calorieGoal !== undefined) {
-      profile.calorieGoal = dto.calorieGoal ? Number(dto.calorieGoal) : null;
+      profile.calorieGoal =
+        dto.calorieGoal !== null && dto.calorieGoal !== undefined ? Number(dto.calorieGoal) : null;
     }
     if (dto.maxSugarPerServing !== undefined) {
-      profile.maxSugarPerServing = dto.maxSugarPerServing ? Number(dto.maxSugarPerServing) : null;
+      profile.maxSugarPerServing =
+        dto.maxSugarPerServing !== null && dto.maxSugarPerServing !== undefined
+          ? Number(dto.maxSugarPerServing)
+          : null;
     }
     if (dto.maxSodiumPerServing !== undefined) {
-      profile.maxSodiumPerServing = dto.maxSodiumPerServing ? Number(dto.maxSodiumPerServing) : null;
+      profile.maxSodiumPerServing =
+        dto.maxSodiumPerServing !== null && dto.maxSodiumPerServing !== undefined
+          ? Number(dto.maxSodiumPerServing)
+          : null;
     }
     if (dto.minProteinPerServing !== undefined) {
-      profile.minProteinPerServing = dto.minProteinPerServing ? Number(dto.minProteinPerServing) : null;
+      profile.minProteinPerServing =
+        dto.minProteinPerServing !== null && dto.minProteinPerServing !== undefined
+          ? Number(dto.minProteinPerServing)
+          : null;
     }
     if (dto.age !== undefined) {
-      profile.age = dto.age ? Number(dto.age) : null;
+      profile.age = dto.age !== null && dto.age !== undefined ? Number(dto.age) : null;
     }
     if (dto.gender !== undefined) {
       profile.gender = (dto.gender || null) as any;
     }
     if (dto.heightCm !== undefined) {
-      profile.heightCm = dto.heightCm ? Number(dto.heightCm) : null;
+      profile.heightCm =
+        dto.heightCm !== null && dto.heightCm !== undefined ? Number(dto.heightCm) : null;
     }
     if (dto.weightKg !== undefined) {
-      profile.weightKg = dto.weightKg ? Number(dto.weightKg) : null;
+      profile.weightKg =
+        dto.weightKg !== null && dto.weightKg !== undefined ? Number(dto.weightKg) : null;
     }
     if (dto.activityLevel !== undefined) {
       profile.activityLevel = (dto.activityLevel || null) as any;
@@ -146,7 +158,8 @@ export class PreferenceService {
           (profile.dietaryPreferences && profile.dietaryPreferences.length > 0) ||
           (profile.dislikedIngredients && profile.dislikedIngredients.length > 0) ||
           profile.maxSugarPerServing ||
-          profile.maxSodiumPerServing),
+          profile.maxSodiumPerServing ||
+          profile.minProteinPerServing),
     );
 
     if (!isConfigured || !profile) {
@@ -382,6 +395,28 @@ export class PreferenceService {
             severity: 'info',
             title: 'Sodium/Salt Target Exceeded',
             description: `${servingSalt.toFixed(2)}g per serving exceeds your target limit of ${profile.maxSodiumPerServing}g.`,
+            source: 'Nutrition Facts',
+          });
+        }
+      }
+    }
+
+    if (profile.minProteinPerServing && profile.minProteinPerServing > 0 && product.nutritionFacts) {
+      const proteinFact = product.nutritionFacts.find((n) =>
+        n.nutrient.toLowerCase().includes('protein'),
+      );
+      if (proteinFact) {
+        const servingProtein =
+          proteinFact.amountPerServing !== null && proteinFact.amountPerServing !== undefined
+            ? proteinFact.amountPerServing
+            : (proteinFact.amountPer100g * (product.servingSize || 100)) / 100;
+
+        if (servingProtein < profile.minProteinPerServing) {
+          conflicts.push({
+            category: 'nutrition',
+            severity: 'info',
+            title: 'Protein Target Inadequate',
+            description: `${servingProtein.toFixed(1)}g protein per serving is below your target minimum of ${profile.minProteinPerServing}g.`,
             source: 'Nutrition Facts',
           });
         }

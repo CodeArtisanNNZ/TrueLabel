@@ -1,0 +1,149 @@
+import {
+  UnauthorizedException,
+  ForbiddenException,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
+import { AuthExceptionFilter } from './auth-exception.filter';
+
+describe('AuthExceptionFilter (Unit Tests)', () => {
+  let filter: AuthExceptionFilter;
+
+  beforeEach(() => {
+    filter = new AuthExceptionFilter();
+  });
+
+  const createMockHost = (acceptsHtml: boolean, url = '/test-path') => {
+    const mockResponse = {
+      redirect: jest.fn(),
+      status: jest.fn().mockReturnThis(),
+      render: jest.fn().mockReturnThis(),
+      json: jest.fn().mockReturnThis(),
+    };
+
+    const mockRequest = {
+      url,
+      accepts: jest.fn().mockReturnValue(acceptsHtml ? 'html' : 'json'),
+      session: { user: { id: 1, name: 'Alice', email: 'alice@example.com', role: 'consumer' } },
+    };
+
+    const mockHost = {
+      switchToHttp: jest.fn().mockReturnValue({
+        getResponse: jest.fn().mockReturnValue(mockResponse),
+        getRequest: jest.fn().mockReturnValue(mockRequest),
+      }),
+    } as any;
+
+    return { mockHost, mockRequest, mockResponse };
+  };
+
+  describe('HTML Requests', () => {
+    it('should redirect to /auth/login?unauthorized=true on 401 Unauthorized', () => {
+      const { mockHost, mockResponse } = createMockHost(true);
+      const exception = new UnauthorizedException('Please log in');
+
+      filter.catch(exception, mockHost);
+
+      expect(mockResponse.redirect).toHaveBeenCalledWith('/auth/login?unauthorized=true');
+    });
+
+    it('should render shared/views/forbidden with 403 status on ForbiddenException', () => {
+      const { mockHost, mockResponse } = createMockHost(true);
+      const exception = new ForbiddenException('Access denied');
+
+      filter.catch(exception, mockHost);
+
+      expect(mockResponse.status).toHaveBeenCalledWith(403);
+      expect(mockResponse.render).toHaveBeenCalledWith(
+        'shared/views/forbidden',
+        expect.objectContaining({
+          title: 'Access Forbidden — TrueLabel',
+          message: 'Access denied',
+        }),
+      );
+    });
+
+    it('should render shared/views/not-found with 404 status on NotFoundException', () => {
+      const { mockHost, mockResponse } = createMockHost(true, '/catalog/product/9999');
+      const exception = new NotFoundException('Food product not found');
+
+      filter.catch(exception, mockHost);
+
+      expect(mockResponse.status).toHaveBeenCalledWith(404);
+      expect(mockResponse.render).toHaveBeenCalledWith(
+        'shared/views/not-found',
+        expect.objectContaining({
+          title: 'Page Not Found — TrueLabel',
+          message: 'Food product not found',
+          path: '/catalog/product/9999',
+        }),
+      );
+    });
+
+    it('should render shared/views/not-found with 400 status on BadRequestException', () => {
+      const { mockHost, mockResponse } = createMockHost(true, '/catalog/product/abc');
+      const exception = new BadRequestException('Validation failed (numeric string is expected)');
+
+      filter.catch(exception, mockHost);
+
+      expect(mockResponse.status).toHaveBeenCalledWith(400);
+      expect(mockResponse.render).toHaveBeenCalledWith(
+        'shared/views/not-found',
+        expect.objectContaining({
+          title: 'Invalid Request — TrueLabel',
+          message: 'Validation failed (numeric string is expected)',
+          path: '/catalog/product/abc',
+        }),
+      );
+    });
+
+    it('should format array of validation error messages into a readable string on BadRequestException', () => {
+      const { mockHost, mockResponse } = createMockHost(true, '/catalog/manage/create');
+      const exception = new BadRequestException({
+        message: ['Serving size must be a valid number', 'Barcode is required'],
+      });
+
+      filter.catch(exception, mockHost);
+
+      expect(mockResponse.status).toHaveBeenCalledWith(400);
+      expect(mockResponse.render).toHaveBeenCalledWith(
+        'shared/views/not-found',
+        expect.objectContaining({
+          title: 'Invalid Request — TrueLabel',
+          statusCode: 400,
+          message: 'Serving size must be a valid number. Barcode is required',
+        }),
+      );
+    });
+  });
+
+  describe('JSON Requests', () => {
+    it('should return JSON format on 404 NotFoundException for API requests', () => {
+      const { mockHost, mockResponse } = createMockHost(false);
+      const exception = new NotFoundException('Item not found');
+
+      filter.catch(exception, mockHost);
+
+      expect(mockResponse.status).toHaveBeenCalledWith(404);
+      expect(mockResponse.json).toHaveBeenCalledWith({
+        statusCode: 404,
+        message: 'Item not found',
+        error: 'Not Found',
+      });
+    });
+
+    it('should return JSON format on 401 UnauthorizedException for API requests', () => {
+      const { mockHost, mockResponse } = createMockHost(false);
+      const exception = new UnauthorizedException('Token required');
+
+      filter.catch(exception, mockHost);
+
+      expect(mockResponse.status).toHaveBeenCalledWith(401);
+      expect(mockResponse.json).toHaveBeenCalledWith({
+        statusCode: 401,
+        message: 'Token required',
+        error: 'Unauthorized',
+      });
+    });
+  });
+});
